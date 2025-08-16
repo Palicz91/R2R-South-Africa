@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Mail, Phone, Building2, MapPin } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
-import { FaLinkedin, FaInstagram, FaFacebook, FaYoutube } from 'react-icons/fa';
+import { FaLinkedin, FaInstagram, FaYoutube } from 'react-icons/fa';
 
 const footerTranslations = {
   en: {
@@ -11,27 +10,13 @@ const footerTranslations = {
     terms: "Terms & Conditions",
     privacy: "Privacy Policy",
     rights: "All rights reserved."
-  },
-  hu: {
-    contact: "Kapcsolat",
-    company: "Céginformációk",
-    legal: "Jogi tudnivalók",
-    terms: "ÁSZF",
-    privacy: "Adatvédelmi Irányelvek",
-    rights: "Minden jog fenntartva."
   }
 };
 
 export default function Footer() {
-  const { language } = useLanguage();
-  const t = footerTranslations[language];
-
-  const instagramUrl = language === 'hu'
-    ? 'https://www.instagram.com/reviewtorevenue_hungary/'
-    : 'https://www.instagram.com/reviewtorevenue/';
-
+  const t = footerTranslations.en;
+  const instagramUrl = 'https://www.instagram.com/reviewtorevenue/';
   const youtubeUrl = 'https://www.youtube.com/@ReviewToRevenueIo';
-  const showFacebook = language === 'hu';
 
   return (
     <footer className="bg-gray-50 border-t border-gray-200 py-8 mt-auto">
@@ -43,14 +28,14 @@ export default function Footer() {
             <div className="space-y-3 text-sm text-gray-600">
               <div className="flex items-start gap-2">
                 <Mail className="w-4 h-4 mt-1 flex-shrink-0" />
-                <a href="mailto:hello@reviewtorevenue.io" className="hover:text-gray-900">
-                  hello@reviewtorevenue.io
+                <a href="mailto:hello@reviewtorevenue.co.za" className="hover:text-gray-900">
+                  hello@reviewtorevenue.co.za
                 </a>
               </div>
               <div className="flex items-start gap-2">
                 <Phone className="w-4 h-4 mt-1 flex-shrink-0" />
-                <a href="tel:+4915143369633" className="hover:text-gray-900">
-                  +49 151 433 69 633
+                <a href="tel:+27633641780" className="hover:text-gray-900">
+                  Greig – (+27) 0 63 364 1780
                 </a>
               </div>
             </div>
@@ -81,16 +66,6 @@ export default function Footer() {
               >
                 <FaYoutube />
               </a>
-              {showFacebook && (
-                <a
-                  href="https://www.facebook.com/reviewtorevenue"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-gray-900 text-xl"
-                >
-                  <FaFacebook />
-                </a>
-              )}
             </div>
           </div>
 
