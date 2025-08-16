@@ -971,15 +971,15 @@ export default function LandingPageNew() {
                     ))}
                   </ul>
 
-                  <Link
+                  <a
+                    href={`https://reviewtorevenue.io/auth?mode=register&plan=${plan.key}${showAnnual ? '_yearly' : ''}&redirect=%2Fpricing&src=za`}
                     onClick={() => fbq('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`)}
-                    to={`/auth?mode=register&plan=${plan.key}${showAnnual ? '_yearly' : ''}`}
                     className={`inline-block w-full py-4 rounded-full font-semibold text-center text-white bg-[#4FC3F7] hover:brightness-110 transition ${
                       plan.highlight ? 'animate-pulse-cyan-shadow' : ''
                     }`}
                   >
                     {planTranslation?.buttonText || plan.buttonText}
-                  </Link>
+                  </a>
                 </Card>
               );
             })}
