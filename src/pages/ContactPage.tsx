@@ -1,10 +1,9 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Mail, User, ArrowLeft, Loader2, CheckCircle, AlertCircle
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
-import { useLanguage } from '../context/LanguageContext';
 import Footer from '../components/Footer';
 import PublicNavBar from '../components/PublicNavBar';
 
@@ -13,7 +12,7 @@ const translations = {
     backHome: 'Back to Home',
     contactUs: 'Contact Us',
     contactIntro: "Whether you have a question or just want to share feedback—we'd love to hear from you.",
-    founderNote: 'Our founder will personally respond to your message.',
+    founderNote: 'Our exclusive partner will personally respond to your message.',
     successMsg: "Thank you! We'll get back to you within 24 hours.",
     errorFields: 'All fields are required',
     errorEmail: 'Please enter a valid email address',
@@ -32,36 +31,11 @@ const translations = {
     send: 'Send Message',
     sending: 'Sending...',
     fallback: 'Prefer email? Reach us at',
-  },
-  hu: {
-    backHome: 'Vissza a főoldalra',
-    contactUs: 'Kapcsolatfelvétel',
-    contactIntro: 'Kérdésed van vagy visszajelzést adnál? Írj nekünk bátran!',
-    founderNote: 'Ádám, az alapítónk személyesen válaszol minden üzenetre.',
-    successMsg: 'Köszönjük! 24 órán belül válaszolunk.',
-    errorFields: 'Minden mező kitöltése kötelező',
-    errorEmail: 'Kérjük, érvényes email címet adj meg',
-    topic: 'Téma',
-    topics: {
-      general: 'Általános',
-      sales: 'Értékesítés',
-      support: 'Technikai segítség',
-      billing: 'Számlázás',
-      partnership: 'Partneri együttműködés',
-    },
-    fullName: 'Teljes név',
-    email: 'Email cím',
-    message: 'Üzenet',
-    messagePlaceholder: 'Mesélj részletesebben – pl. „Szeretném megtudni, hogy több üzlet esetén hogyan működik az árazás."',
-    send: 'Üzenet küldése',
-    sending: 'Küldés...',
-    fallback: 'Inkább emailben írnál? Küldd el ide:',
   }
 };
 
 export default function ContactPage() {
-  const { language, setLanguage } = useLanguage();
-  const t = translations[language];
+  const t = translations.en;
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -72,32 +46,6 @@ export default function ContactPage() {
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [countryCode, setCountryCode] = useState<'hu' | 'en'>('en');
-
-  useEffect(() => {
-    const storedLang = localStorage.getItem('language') as 'en' | 'hu' | null;
-
-    if (storedLang) {
-      setLanguage(storedLang);
-      setCountryCode(storedLang);
-      return;
-    }
-
-    fetch('https://ipinfo.io/json?token=53cd9f60a714e6')
-      .then((res) => res.json())
-      .then((data) => {
-        const lang = data?.country === 'HU' ? 'hu' : 'en';
-        console.log('[Geolocation] Detected country:', data?.country, '→ language:', lang);
-        setLanguage(lang);
-        setCountryCode(lang);
-        localStorage.setItem('language', lang);
-      })
-      .catch(() => {
-        setLanguage('en');
-        setCountryCode('en');
-        localStorage.setItem('language', 'en');
-      });
-  }, [setLanguage]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -169,8 +117,8 @@ export default function ContactPage() {
             {/* Team trust element */}
             <div className="mb-6 flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
               <img
-                src="https://images.unsplash.com/photo-1746954412182-e97488254ffc?q=80&w=2438&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="Adam Palicz, Founder"
+                src="https://bnumwujvaribzfexpmmc.supabase.co/storage/v1/object/public/website-materials/photos/greig.jpeg"
+                alt="Greig"
                 className="w-20 h-20 rounded-full object-cover"
               />
               <p className="text-sm text-gray-700">
@@ -297,7 +245,7 @@ export default function ContactPage() {
 
             {/* Direct email fallback */}
             <div className="mt-6 text-center text-sm text-gray-500">
-              {t.fallback} <a href="mailto:hello@reviewtorevenue.io" className="text-blue-600 hover:underline">hello@reviewtorevenue.io</a>
+              {t.fallback} <a href="mailto:hello@reviewtorevenue.co.za" className="text-blue-600 hover:underline">hello@reviewtorevenue.co.za</a>
             </div>
           </div>
         </div>
