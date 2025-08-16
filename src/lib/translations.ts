@@ -73,7 +73,7 @@ export const translations = {
     <span class="font-semibold">4.8 stars always beats 4.5 (or less).</span><br/>
     <span class="block mt-2">Every. Single. Time.</span><br/>
     A venue loses around 3–5 customers a day just because of review differences. <span class="italic text-gray-700">(The same goes for hotels, salons, yoga studios, etc.)</span><br/>
-    <span class="block text-lg font-semibold text-red-600 mt-2">‼️ That’s roughly $10,000 in monthly losses. ‼️</span>`,
+    <span class="block text-lg font-semibold text-red-600 mt-2">‼️ That’s roughly R100,000 in monthly losses. ‼️</span>`,
     crisisSolution: `We’ve got a <span class="font-semibold text-[#4FC3F7]">ridiculously simple system</span> that gets that money back — for the price of two pizzas.`,
     crisisCta: "Show me the solution!",
 
