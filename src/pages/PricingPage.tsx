@@ -241,15 +241,17 @@ export default function PricingPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
-                  className={`flex flex-col bg-white rounded-2xl shadow-lg overflow-hidden w-full
+                  className={`relative flex flex-col bg-white rounded-2xl shadow-lg overflow-hidden w-full
                              ${plan.highlight ? 'ring-2 ring-blue-500' : ''}
                              ${isCurrentPlan ? 'ring-2 ring-green-500' : ''}`}
                 >
-                  {(plan.badge || isCurrentPlan) && (
+                  {plan.key === 'growth' && (
                     <div className="absolute top-4 right-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                      ${isCurrentPlan ? 'bg-green-100 text-green-800' : plan.highlight ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-                        {isCurrentPlan ? 'Current Plan' : plan.badge}
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+                                       text-[11px] font-semibold uppercase tracking-wide
+                                       bg-[#E6F7FF] text-[#0284C7] border border-[#BAE6FD]
+                                       shadow-[0_1px_2px_rgba(2,132,199,0.15)]">
+                        Most Popular
                       </span>
                     </div>
                   )}
