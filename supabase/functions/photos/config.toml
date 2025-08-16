@@ -1,0 +1,3 @@
+# supabase/functions/photos/config.toml
+[function]
+verify_jwt = false
