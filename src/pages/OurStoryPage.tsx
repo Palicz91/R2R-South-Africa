@@ -1,7 +1,6 @@
 // src/pages/OurStoryPage.tsx
-import { useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { LanguageContext } from "../context/LanguageContext";
 import Layout from '../components/Layout';
 import PublicNavBar from '../components/PublicNavBar';
 import Section from '../components/ui/Section';
@@ -93,94 +92,11 @@ wePlayBigParagraphs: [
     greigQuote: `In South Africa's SMB market, many businesses operate far below their potential and lack the big marketing budgets to boost revenue. Review to Revenue offers an affordable, effective way to increase visibility, attract new customers, and keep them coming back.`,
     aliceQuote: `In New York and California, great spots can get buried under noise. When a guest's voice becomes visible proof, discovery and repeat visits follow. Review to Revenue makes that simple: one scan, one game, one more reason to come back.`,
 
-  },
-  hu: {
-    manifestoSectionTitle: "A hitvallásunk",
-    manifestoSectionDescription: "A hitvallás egy világos és nyilvános értéknyilatkozat, szándékok és hitek. A miénk alapot ad mindannak, amit építünk — és ahogyan építjük.",
-    wePlayBigTitle: "1. Nagyban játszunk",
-    wePlayBigParagraphs: [
-      `A célunk nem egy <strong>„jó ha van” előfizetéses termék</strong> piacra dobása, hanem <strong>a véleménygyűjtés forradalmasítása</strong>. Többé ne legyen kínos a vendégtől értékelést kérni. A cél, hogy a munkatárs úgy érezze: ténylegesen segít a vendégnek — hiszen az akár nyerhet is valamit.`,
-      `Egyetlen tranzakcióval nemcsak véleményt gyűjtünk, hanem <strong>visszatérő vendéget szerzünk</strong> és <strong>építjük az email listát is. <strong>Egy mozdulat — három nyereség</strong>. Kínos kérés nélkül.`,
-      `<strong>Egyik tesztpartnerünk három hét alatt duplázták meg a Google-értékeléseik számát</strong> — anélkül, hogy egyetlen vendégnek is könyörögni kellett volna.`,
-      `Túl sok fantasztikus kisvállalkozás marad láthatatlan — <strong>nem azért, mert nem jók</strong>, hanem mert senki nem tud róluk. Mi ezen változtatunk.`,
-      `<strong>Az első évben 1 000 aktív ügyfélre törekszünk</strong> — <strong>három év alatt pedig 10 000-re</strong>.`,
-    ],    
-    topTechLeanOrgTitle: "2. Technológia és Karcsú Szervezet",
-    topTechLeanOrgParagraph: `Nem halmozzuk az alkalmazottakat – <strong>amit lehet, automatizálunk</strong>. <strong>AI-t és más csúcstechnológiákat</strong> használunk. Az egész platform úgy épült, hogy mindig <strong>a vásárlói élményre, logikára és üzleti szemléletre</strong> koncentráljon.`,
-    highRiskTitle: "3. Nagy kockázat, nagy nyereség",
-    highRiskParagraphs: [
-      `Ahogy említettük: nem <strong>alkalmazottakat</strong> keresünk – hanem <span class="text-[#4FC3F7] font-semibold">partnereket</span>. <strong>Olyanokat, akik éhesek</strong>, akik valami nagyot akarnak építeni – de még nem találták meg, hogy mivel és hogyan. Akik szívesen tesznek bele <strong>időt és energiát</strong> valamibe, amiben <strong>valódi üzleti potenciál</strong> van.`,
-      `Akik <strong>elfogadják a kudarc lehetőségét</strong> – de nem bénulnak le tőle, hanem <strong>újrapróbálják</strong>, tesztelnek, más módszert választanak.`,
-      `Ha van <strong>kapcsolatod a vendéglátásban</strong>, az előny – de egyelőre elég, ha <span class="text-[#4FC3F7] font-semibold">keményen és/vagy okosan dolgozol</span> a célért.`,
-      `Ha már régóta keresed azt az <span class="text-[#4FC3F7] font-semibold">„egy dolgot”</span>, amibe igazán beleteheted magad – lehet, hogy ez az.`,
-      `És mit kapsz cserébe? <strong>Nagy jutalmat</strong>. Nem aprópénzt – hanem az általad hozott ügyfelek <span class="text-[#4FC3F7] font-semibold">összes bevételének akár 20-40%-át</span> – <span class="text-[#4FC3F7] font-semibold">élethosszig</span>.`,
-      `Teljes <strong>képzést</strong>, <strong>közösségi tudásmegosztást</strong>, <strong>működő terméket</strong> és <strong>komplett technológiai hátteret</strong> biztosítunk.`,
-      `Már vannak partnereink <span class="text-[#4FC3F7] font-semibold">Magyarországon, az Egyesült Királyságban, Indonéziában, Szingapúrban és Svájcban</span>, és több mint <span class="text-[#4FC3F7] font-semibold">40 vállalkozás</span> használja aktívan a rendszert.`,
-    ],    
-    innovationTitle: "4. Innováció és alkalmazkodás",
-    innovationParagraphs: [
-  `<strong>Nem ülünk heteket vagy hónapokat</strong> a döntéseinken.`,
-  `Ami működik, azt <strong>felskálázzuk</strong>. Ami nem, azt <strong>gyorsan elengedjük</strong>.`,
-  `<strong>Gyors döntések. Még gyorsabb cselekvés.</strong>`,
-  `Ha hibázunk — <span class="text-[#4FC3F7] font-semibold">semmi gond</span>. Javítjuk.`,
-    ],
-    openCommunicationTitle: "5. Nyílt kommunikáció",
-    openCommunicationParagraphs: [
-  `<strong>Őszintén és nyíltan kommunikálunk</strong> egymással — maximális tisztelettel, és ha kell, <strong>konfrontációval</strong> is.`,
-  `Mondd ki, amit gondolsz — <strong>akkor is, ha csak az ördög ügyvédjét játszod</strong>.`,
-  `Kérdezz rá, amit nem tudsz vagy nem vagy biztos benne — <span class="text-[#4FC3F7] font-semibold">nincsenek rossz kérdések</span>, csak azok, amiket nem tettél fel.`,
-    ],
-    customerCenteredTitle: "6. Ügyfélközpontú gondolkodás",
-    customerCenteredParagraphs: [
-  `A célunk, hogy az ügyfeleinknek <strong>kiváló élményt</strong> és <strong>első osztályú szolgáltatást</strong> nyújtsunk.`,
-  `Megoldásokra és <strong>win-win helyzetekre</strong> törekszünk.`,
-  `<strong>Átláthatóan kommunikálunk</strong> az ügyfelekkel – még akkor is, ha ez kényelmetlen.`,
-  `A <strong>hosszú távú elégedettséget</strong> előbbre helyezzük a rövid távú érdekeknél.`,
-  `Az ügyfeleket <span class="text-[#4FC3F7] font-semibold">partnerként – egyenrangúként</span> kezeljük. Nem vagyunk fölöttük, de alattuk sem. És mivel ezt adjuk, ugyanezt várjuk vissza.`,
-  `Vállaljuk, hogy <span class="text-[#4FC3F7] font-semibold">24 órán belül válaszolunk</span> minden aktív támogatási csatornán.`,
-    ],
-    simplicityTitle: "7. Egyszerűség",
-    simplicityParagraphs: [
-  `Minden szinten az <strong>egyszerűségre</strong> törekszünk.`,
-  `A platform úgy lett kialakítva, hogy bárki <strong>5 percen belül létrehozhassa az első QR-kódját</strong> — <span class="text-[#4FC3F7] font-semibold">és már nyomtatható is</span>.`,
-  `Minél egyszerűbb egy megoldás vagy ötlet, annál <strong>jobb</strong> és <strong>értékesebb</strong>.`,
-  `A Review to Revenue <strong>egyszerű pszichológiai</strong>, <strong>értékesítési</strong> és <strong>gamifikációs eszközöket</strong> használ, hogy a véleménygyűjtést egy teljesen új szintre emelje.`,
-    ],
-    freedomTitle: "8. Szabadság",
-    freedomParagraphs: [
-  `Hisszük, hogy mindenki képes <strong>önállóan megszervezni és menedzselni az életét</strong>, és akkor vagyunk a leghatékonyabbak, ha <strong>a saját ritmusunkban dolgozunk</strong> — bárhol is legyünk a világban.`,
-  `Akikben megvan a <span class="text-[#4FC3F7] font-semibold">nagy kockázat, nagy nyereség</span> mentalitás, azoknál ez a szabadság nem csökkenti a hatékonyságot — <strong>hanem megsokszorozza</strong>, és <strong>hosszú távú elégedettséget</strong> hoz.`,
-  `Ez a szabadság <strong>egyértelmű célmutatókkal</strong>, <strong>mérőszámokkal</strong> és <strong>megosztott felelősséggel</strong> párosul.`,
-    ],
-    bootstrapTitle: "+1 Bootstrap",
-    bootstrapParagraphs: [
-  `<strong>Organikusan, önerőből építkezünk</strong>, külső finanszírozás nélkül.`,
-  `Nem tervezünk külső tőkét bevonni, mert nem akarjuk magunkat <strong>olyan pénzügyi vagy növekedési nyomásnak</strong> kitenni, ami <strong>a cég kultúráját</strong>, <strong>ügyfélközpontúságát</strong> vagy <strong>alapértékeit</strong> veszélyeztetné.`,
-  `A <span class="font-semibold text-white underline">kockázatitőke befektetés mentesség</span> lehetővé teszi, hogy <strong>tudatosan haladjunk</strong>, <strong>az ügyfeleket szolgáljuk — ne a befektetőket</strong>, és <strong>hűek maradjunk a küldetésünkhöz</strong>, nem pedig egy "növekedés bármi áron" narratívához.`,
-    ],
-    closingSectionTitle: "🚀 Készen állsz nagyban játszani velünk?",
-    closingSectionText: `Legyél partner, mert most van itt az idő! Csatlakozz a mozgalomhoz, ami láthatatlan vállalkozásokból helyi legendákat formál.<br />Nem csupán egy eszközt használsz – hanem egy csapat tagja leszel, amely hisz abban, hogy a helyi vállalkozások reflektorfényt érdemelnek.`,
-    closingCta: "Csatlakozom alapító partnerként",
-    meetTeamTitle: "Ismerd meg a csapatunkat",
-    exclusiveBadge: "Exkluzív partner",
-    adamRole: "Alapító & CEO, Bali",
-    silingRole: "Stratégiai partner, Szingapúr",
-    anitaRole: "Stratégiai partner, Magyarország",
-    greigRole: "Exkluzív partner",
-    aliceRole: "Partner",
-    partnerCountriesText: "Emellett már partnereink vannak az Egyesült Királyságban 🇬🇧, Svájcban 🇨🇭, Indonéziában 🇮🇩 és Horvátországban 🇭🇷 is.",
-
-    adamQuote: `Utazáskor éttermet, kávézót, hotelt – még edzőtermet is – értékelések alapján választok. Pedig a legjobb helyek gyakran radar alatt vannak...`,
-    silingQuote: `Asztalfoglalás előtt mindig megnézem a véleményeket. A múlt héten találtam egy családi éttermet, 56 review‑val, pedig 15 éve működnek.`,
-    anitaQuote: `A Google Review egy radar alatti marketing eszköz. Hiszen ha a vendég lát egy 4.2 és egy 4.8 csillagos helyet a térképen, akkor bizony a 4.8-ast választja. Ez egyszerű pszichológia: ha ennyien voltak elégedettek, valószínűleg én is az leszek.`,
-    greigQuote: `Dél-Afrikában sok KKV jóval a lehetőségei alatt működik, és nincs nagy marketingbüdzséjük a forgalom növelésére. A Review to Revenue megfizethető, hatékony módja a láthatóság növelésének, új vendégek szerzésének és a visszatérés ösztönzésének.`,
-    aliceQuote: `New Yorkban és Kaliforniában a remek helyek könnyen elvesznek a zajban. Ha a vendég hangja látható bizonyítékká válik, jön a felfedezés és a visszatérés. A Review to Revenue ezt egyszerűvé teszi: egy QR, egy játék, egy újabb ok visszatérni.`,
-  },
+  }
 };
 
 export default function OurStoryPage() {
-  const { language } = useContext(LanguageContext);
-  const t = translations[language] || translations.en;
+  const t = translations.en;
   const [open, setOpen] = useState(false);
   
   const [user, setUser] = useState(null);
@@ -743,32 +659,6 @@ export default function OurStoryPage() {
   {t.partnerCountriesText}
 </p>
 </Section>
-
-              {/* 10. Closing CTA - gradient from-blue-50 to-indigo-50 */}
-      <Section className="py-6 bg-gradient-to-br from-blue-50 to-indigo-50 text-center relative overflow-hidden">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6" style={{ fontFamily: 'Alexandria, sans-serif' }}>
-            {t.closingSectionTitle}
-          </h2>
-          <p
-            className="text-lg sm:text-xl text-gray-700 mb-10 leading-relaxed"
-            style={{ fontFamily: 'Montserrat, sans-serif' }}
-            dangerouslySetInnerHTML={{ __html: t.closingSectionText }}
-          />
-          <button
-            onClick={() => setOpen(true)}
-            className="inline-flex items-center px-8 py-4 rounded-xl bg-[#4FC3F7] text-white font-semibold text-lg lg:text-xl shadow-lg hover:brightness-110 transition animate-pulse-cyan-shadow"
-          >
-            {t.closingCta}
-          </button>
-        </div>
-
-        {/* Background blobs for closing CTA */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-blue-100 rounded-full opacity-20 blur-3xl" />
-          <div className="absolute -bottom-1/4 -left-1/4 w-96 h-96 bg-indigo-100 rounded-full opacity-20 blur-3xl" />
-        </div>
-      </Section>
 
       <PartnerFormModal open={open} onClose={() => setOpen(false)} />
     </>
