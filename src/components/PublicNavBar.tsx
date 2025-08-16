@@ -86,9 +86,13 @@ export default function PublicNavBar() {
               <Link to="/contact" className="px-4 py-2 text-sm font-medium rounded-lg transition" style={{ color: '#1A237E', backgroundColor: '#E8EAF6' }}>
                 {t.contact}
               </Link>
-              <Link to="/auth" className="px-4 py-2 text-sm font-medium rounded-lg transition" style={{ backgroundColor: '#1A237E', color: 'white' }}>
+              <a
+                href="https://reviewtorevenue.io/auth?mode=login&redirect=%2Fpricing&src=za"
+                className="px-4 py-2 text-sm font-medium rounded-lg transition"
+                style={{ backgroundColor: '#1A237E', color: 'white' }}
+              >
                 {t.signIn}
-              </Link>
+              </a>
               
               {/* Language Switcher - Desktop Dropdown */}
               <div className="relative ml-2" ref={langDropdownRef}>
@@ -158,9 +162,14 @@ export default function PublicNavBar() {
               <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2 text-base font-medium rounded-md transition" style={{ color: '#1A237E', backgroundColor: '#E8EAF6' }}>
                 {t.contact}
               </Link>
-              <Link to="/auth" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2 text-base font-medium rounded-md transition" style={{ backgroundColor: '#1A237E', color: 'white' }}>
+              <a
+                href="https://reviewtorevenue.io/auth?mode=login&redirect=%2Fpricing&src=za"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-4 py-2 text-base font-medium rounded-md transition"
+                style={{ backgroundColor: '#1A237E', color: 'white' }}
+              >
                 {t.signIn}
-              </Link>
+              </a>
               
               {/* Language Switcher - Mobile Dropdown */}
               <div className="flex justify-center py-3 border-t border-gray-100 relative" ref={langDropdownRef}>
