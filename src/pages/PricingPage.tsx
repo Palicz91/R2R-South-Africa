@@ -197,12 +197,12 @@ export default function PricingPage() {
                   No credit card required. No commitment. Just results.
                 </p>
 
-                <Link
-                  to="/auth?mode=register"
+                <a
+                  href="https://reviewtorevenue.io/auth?mode=register&redirect=%2Fpricing&src=za"
                   className="inline-block bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-all animate-pulse-green"
                 >
                   Start free trial
-                </Link>
+                </a>
               </div>
             )}
 
@@ -291,7 +291,7 @@ export default function PricingPage() {
                       <button
                         onClick={async () => {
                           if (!user) {
-                            window.location.href = `/auth?mode=register&redirect=${encodeURIComponent(window.location.pathname)}`;
+                            window.location.href = `https://reviewtorevenue.io/auth?mode=register&redirect=${encodeURIComponent('/pricing')}&src=za`;
                             return;
                           }
 
