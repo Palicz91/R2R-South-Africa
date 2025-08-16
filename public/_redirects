@@ -1,0 +1,3 @@
+/review/*      /index.html    200
+/auth/*        /index.html    200
+/*            /index.html    200
