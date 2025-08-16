@@ -9,72 +9,17 @@ import Layout from '../components/Layout';
 import { createCheckoutSession } from '../lib/stripe';
 import { products } from '../stripe-config';
 import { supabase } from '../lib/supabaseClient';
-import useTranslation from '../hooks/useTranslation';
 
 export default function PricingPage() {
   const [showAnnual, setShowAnnual] = useState(false);
   const [searchParams] = useSearchParams();
   const { plan: currentPlan, status, trial_ends_at } = useUserPlan();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [loadingPlanKey, setLoadingPlanKey] = useState<string | null>(null);
-  const { t } = useTranslation();
 
-  // LTD visibility control
-  const showLTD = false; // most nincs kint az LTD
-
-  // Founding Member constants and state
-  const FM_BASE_USD = 149.99;    // current one-time base price
-  const FM_ADDON_USD = 99.99;   // one-time fee per extra business
-  const FM_ADDON_MAX = 10;    // selectable upper limit
-  const [extraBusinesses, setExtraBusinesses] = useState(0);
-  const [ltdLoading, setLtdLoading] = useState(false);
-
-  // End-of-month countdown
-  const [countdown, setCountdown] = useState('');
-
-  // Formatting and calculations
-  const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
-  const fmTotal = FM_BASE_USD + extraBusinesses * FM_ADDON_USD;
-
-  // End-of-month countdown effect
-  useEffect(() => {
-    const deadline = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0, 23, 59, 59); // end of month
-    const id = setInterval(() => {
-      const ms = deadline.getTime() - Date.now();
-      if (ms <= 0) return setCountdown('0d 0h 0m 0s');
-      const s = Math.floor(ms/1000), d = Math.floor(s/86400), h = Math.floor((s%86400)/3600), m = Math.floor((s%3600)/60), sec = s%60;
-      setCountdown(`${d}d ${h}h ${m}m ${sec}s`);
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  // Founding Member checkout function
-  async function startFoundingMemberCheckout() {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const accessToken = session?.access_token;
-
-      const res = await fetch('/functions/v1/founding-member-checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
-        },
-        body: JSON.stringify({
-          addonQty: extraBusinesses,
-          customerEmail: session?.user?.email || undefined
-        })
-      });
-
-      if (!res.ok) throw new Error('Checkout init failed');
-      const { url } = await res.json();
-      window.location.href = url;
-    } catch (e) {
-      console.error(e);
-      alert('Something went wrong starting checkout.');
-    }
-  }
+  // Add ZAR formatter
+  const fmtZAR = new Intl.NumberFormat('en-ZA');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -125,10 +70,6 @@ export default function PricingPage() {
     runCheckout();
   }, [searchParams]);
 
-  const calculatePrice = (price: number) => {
-    return showAnnual ? (price * 12 * 0.8).toFixed(2) : price.toFixed(2);
-  };
-
   const getStripePriceId = (planKey: string, isAnnual: boolean) => {
     // Use the plan key directly rather than the name
     const key = planKey.toLowerCase() + (isAnnual ? '_yearly' : '');
@@ -136,51 +77,54 @@ export default function PricingPage() {
     return product?.priceId || null;
   };
 
-  // Using dynamic data from translations
   const plans = [
     {
-      key: 'solo',
-      name: 'Solo',
-      price: 29.99,
+      key: 'starter',
+      name: 'Starter',
+      price: 750,
+      currency: 'R',
       features: [
         '1 business',
-        'Up to 3 Active Wheel of Fortunes',
-        'Up to 200 reviews/month',
-        'QR code customization',
-        'Review page customization',
-        'Priority email support',
-        'Video Onboarding'
+        'Up to 3 Wheel of Fortunes',
+        'Max. 200 new reviews/month',
+        'Downloadable guest email list',
+        'Short video tutorials',
+        'Access to your own stats'
       ],
+      buttonText: 'Get Started'
     },
     {
       key: 'growth',
       name: 'Growth',
-      price: 49.99,
+      price: 1500,
+      currency: 'R',
       features: [
-        'Everything in Solo',
-        'Up to 3 businesses',
-        'Up to 15 Active Wheels',
-        'Up to 1000 reviews/month',
-        'Custom branding',
-        'Custom prize weighting',
+        'Everything in Starter',
+        'Up to 5 businesses',
+        'Up to 15 Wheel of Fortunes',
+        'Max. 1000 new reviews/month',
+        'Custom design'
       ],
       highlight: true,
-      badge: 'Best Value',
+      badge: 'Most popular',
+      buttonText: 'I\'ll choose this'
     },
     {
-      key: 'unlimited',
-      name: 'Unlimited',
-      price: 129.99,
+      key: 'professional',
+      name: 'Professional (Ideal for Franchise Businesses.)',
+      price: null, // Price on request
       features: [
         'Everything in Growth',
-        'Unlimited businesses & reviews',
+        'Unlimited businesses',
+        'Unlimited new reviews/month',
         'Unlimited Wheel of Fortunes',
-        'Priority support (chat + email)',
-        'Feature-request fast-lane',
-        'Personalized Onboarding',
+        'Fast support – replies within 2 hours',
+        'Feature requests',
+        'Personalized onboarding'
       ],
-      badge: 'Full Access',
-    },
+      badge: 'All inclusive',
+      buttonText: 'Email greig@reviewtorevenue.co.za for a personalized quote.'
+    }
   ];
 
   const pricingContent = (
@@ -215,11 +159,10 @@ export default function PricingPage() {
             >
               <div className="flex items-center justify-center gap-2 text-lg font-medium mb-1">
                 <Sparkles className="w-5 h-5" />
-                {t.daysLeftInTrial?.replace('{days}', Math.ceil((new Date(trial_ends_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)).toString()) || 
-                `${Math.ceil((new Date(trial_ends_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days left in your trial`}
+                {`${Math.ceil((new Date(trial_ends_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left in your trial`}
               </div>
               <p className="text-sm text-white/90">
-                {t.choosePlanAfterTrial || "Choose a plan to continue using all features after your trial ends."}
+                Choose a plan to continue using all features after your trial ends.
               </p>
             </motion.div>
           </div>
@@ -227,15 +170,14 @@ export default function PricingPage() {
       )}
 
       <div className="flex-1 py-12">
-        {/* Header csak középre zárva */}
+        {/* Header */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-          {/* Header */}
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              {t.pricingTeaserTitle || "Simple, transparent pricing"}
+              Boost your revenue for the price of a cheap dinner for 2!
             </h1>
             <p className="text-xl text-gray-600">
-              {t.choosePerfectPlan || "Choose the perfect plan for your business"}
+              Choose the perfect plan for your business
             </p>
             
             {/* Free Trial Banner with CTA — Only if user not logged in */}
@@ -248,26 +190,26 @@ export default function PricingPage() {
                   className="inline-flex items-center gap-2 bg-green-100 text-green-800 rounded-full px-4 py-2 text-sm font-semibold mb-4"
                 >
                   <Sparkles className="w-4 h-4" />
-                  {t.freeTrialBanner || "Start your 14-day free trial — no credit card required!"}
+                  Start your 14-day free trial — no credit card required!
                 </motion.div>
 
                 <p className="text-gray-600 text-sm mb-4">
-                  {t.noCreditCardRequired || "Dive in and explore all the features — completely risk-free."}
+                  No credit card required. No commitment. Just results.
                 </p>
 
                 <Link
                   to="/auth?mode=register"
                   className="inline-block bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-all animate-pulse-green"
                 >
-                  {t.startFreeTrial || "Start Free Trial"}
+                  Start free trial
                 </Link>
               </div>
             )}
 
-            {/* Moved Toggle here */}
+            {/* Toggle */}
             <div className="flex justify-center items-center mt-6 mb-12">
               <span className={`text-sm mr-3 ${!showAnnual ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
-                {t.monthly || "Monthly"}
+                Monthly
               </span>
               <button 
                 onClick={() => setShowAnnual(!showAnnual)} 
@@ -281,20 +223,17 @@ export default function PricingPage() {
                 />
               </button>
               <span className={`text-sm ml-3 ${showAnnual ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
-                {t.yearly || "Yearly"} <span className="text-green-500 font-medium">({t.save20Percent || "Save 20%"})</span>
+                Yearly <span className="text-green-500 font-medium">(Save 20%)</span>
               </span>
             </div>
           </div>
         </div>
 
-        {/* Pricing grid középre zárva */}
+        {/* Pricing grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`grid grid-cols-1 sm:grid-cols-2 ${showLTD ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-8 mb-16`}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {plans.map((plan) => {
-              // Use plan.key instead of plan.name.toLowerCase() for more robust comparison
               const isCurrentPlan = plan.key === currentPlan;
-              // Try to get translation if available
-              const planTranslation = t.pricingPlans?.[plan.key];
               
               return (
                 <motion.div
@@ -309,35 +248,36 @@ export default function PricingPage() {
                   {(plan.badge || isCurrentPlan) && (
                     <div className="absolute top-4 right-4">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                      ${isCurrentPlan 
-                                        ? 'bg-green-100 text-green-800'
-                                        : plan.highlight 
-                                          ? 'bg-blue-100 text-blue-800'
-                                          : 'bg-gray-100 text-gray-800'}`}>
-                        {isCurrentPlan 
-                          ? (t.currentPlan || 'Current Plan') 
-                          : (t.pricingPlans?.[plan.key]?.badge || plan.badge)}
+                                      ${isCurrentPlan ? 'bg-green-100 text-green-800' : plan.highlight ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+                        {isCurrentPlan ? 'Current Plan' : plan.badge}
                       </span>
                     </div>
                   )}
 
                   <div className="p-6 flex-1 flex flex-col">
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {planTranslation?.name || plan.name}
+                      {plan.name}
                     </h3>
-                    <div className="flex items-baseline mb-6">
-                      <span className="text-4xl font-bold text-gray-900">
-                        ${calculatePrice(plan.price)}
-                      </span>
-                      <span className="text-gray-500 ml-1">
-                        {showAnnual 
-                          ? '/year' 
-                          : planTranslation?.period || '/month'}
-                      </span>
-                    </div>
+                    
+                    {plan.price ? (
+                      <div className="flex items-baseline mb-6">
+                        <span className="text-4xl font-bold text-gray-900">
+                          {plan.currency}{fmtZAR.format(
+                            showAnnual ? Math.round(plan.price * 12 * 0.8) : plan.price
+                          )}
+                        </span>
+                        <span className="text-gray-500 ml-1">
+                          {showAnnual ? '/year' : '/month'}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="mb-6">
+                        <span className="text-2xl font-bold text-gray-900">Price on request</span>
+                      </div>
+                    )}
 
                     <ul className="space-y-4 mb-8 flex-1">
-                      {(planTranslation?.features || plan.features).map((feature: string) => (
+                      {plan.features.map((feature: string) => (
                         <li key={feature} className="flex items-start gap-3">
                           <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
                           <span className="text-gray-600">{feature}</span>
@@ -345,50 +285,52 @@ export default function PricingPage() {
                       ))}
                     </ul>
 
-                    {/* Updated: Cyan "Get Started" button with color-specific pulse effect for highlighted plan */}
-                    <button
-                      onClick={async () => {
-                        if (!user) {
-                          window.location.href = `/auth?mode=register&redirect=${encodeURIComponent(window.location.pathname)}`;
-                          return;
-                        }
+                    {plan.price ? (
+                      <button
+                        onClick={async () => {
+                          if (!user) {
+                            window.location.href = `/auth?mode=register&redirect=${encodeURIComponent(window.location.pathname)}`;
+                            return;
+                          }
 
-                        // Use plan.key instead of plan.name for getting the price ID
-                        const priceId = getStripePriceId(plan.key, showAnnual);
-                        if (!priceId) {
-                          console.error('Price ID not found for plan:', plan.key);
-                          return;
-                        }
+                          const priceId = getStripePriceId(plan.key, showAnnual);
+                          if (!priceId) {
+                            console.error('Price ID not found for plan:', plan.key);
+                            return;
+                          }
 
-                        try {
-                          setLoadingPlanKey(plan.key);
-                          await createCheckoutSession(priceId, 'subscription');
-                        } catch (error) {
-                          console.error('Failed to create checkout session:', error);
-                        } finally {
-                          setLoadingPlanKey(null);
-                        }
-                      }}
-                      className={`w-full py-3 px-4 rounded-lg font-medium transition-all flex justify-center items-center gap-2
-                        ${isCurrentPlan
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : plan.highlight
-                            ? 'bg-[#4FC3F7] text-white hover:brightness-110 animate-pulse-cyan-shadow'
-                            : 'bg-[#4FC3F7] text-white hover:brightness-110'}`}
-                      disabled={isCurrentPlan || loadingPlanKey === plan.key}
-                    >
-                      {loadingPlanKey === plan.key && (
-                        <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"></path>
-                        </svg>
-                      )}
-                      {loadingPlanKey === plan.key
-                        ? t.redirectingToStripe || 'Redirecting to Stripe...'
-                        : isCurrentPlan
-                          ? (t.currentPlan || 'Current Plan')
-                          : (planTranslation?.buttonText || t.getStarted || 'Get Started')}
-                    </button>
+                          try {
+                            setLoadingPlanKey(plan.key);
+                            await createCheckoutSession(priceId, 'subscription');
+                          } catch (error) {
+                            console.error('Failed to create checkout session:', error);
+                          } finally {
+                            setLoadingPlanKey(null);
+                          }
+                        }}
+                        className={`w-full py-3 px-4 rounded-lg font-medium transition-all flex justify-center items-center gap-2
+                          ${isCurrentPlan
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : plan.highlight
+                              ? 'bg-[#4FC3F7] text-white hover:brightness-110 animate-pulse-cyan-shadow'
+                              : 'bg-[#4FC3F7] text-white hover:brightness-110'}`}
+                        disabled={isCurrentPlan || loadingPlanKey === plan.key}
+                      >
+                        {loadingPlanKey === plan.key && (
+                          <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"></path>
+                          </svg>
+                        )}
+                        {loadingPlanKey === plan.key
+                          ? 'Redirecting to Stripe...'
+                          : isCurrentPlan
+                            ? 'Current Plan'
+                            : plan.buttonText}
+                      </button>
+                    ) : (
+                      <p className="text-sm text-gray-600 mt-auto text-center">{plan.buttonText}</p>
+                    )}
                   </div>
                 </motion.div>
               );
@@ -528,7 +470,7 @@ export default function PricingPage() {
     </>
   );
 
-  // Loading állapot – maradjon semleges shell
+  // Loading state
   if (loading) {
     return user ? (
       <Layout fullBleed>
@@ -547,7 +489,6 @@ export default function PricingPage() {
     );
   }
 
-  // KÉSZ – feltételes shell választás
   return user ? (
     <Layout fullBleed>
       {pricingContent}
