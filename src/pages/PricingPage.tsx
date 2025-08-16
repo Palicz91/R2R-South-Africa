@@ -329,7 +329,15 @@ export default function PricingPage() {
                             : plan.buttonText}
                       </button>
                     ) : (
-                      <p className="text-sm text-gray-600 mt-auto text-center">{plan.buttonText}</p>
+                      <div className="text-sm text-gray-600 mt-auto text-center">
+                        <a 
+                          href="mailto:greig@reviewtorevenue.co.za" 
+                          className="text-blue-600 hover:text-blue-800 underline"
+                        >
+                          Email greig@reviewtorevenue.co.za
+                        </a>{" "}
+                        for a personalized quote.
+                      </div>
                     )}
                   </div>
                 </motion.div>
