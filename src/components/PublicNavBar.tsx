@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import ScrollProgressBar from './ScrollProgressBar';
 
 const navbarTranslations = {
@@ -12,43 +11,12 @@ const navbarTranslations = {
     contact: "Contact",
     signIn: "Sign In",
   },
-  hu: {
-    useCases: "Felhasználási módok",
-    ourStory: "Küldetésünk",
-    pricing: "Árak",
-    contact: "Kapcsolat",
-    signIn: "Bejelentkezés",
-  },
 };
 
 export default function PublicNavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showLangDropdown, setShowLangDropdown] = useState(false);
-  const langDropdownRef = useRef<HTMLDivElement>(null);
-  const { language, setLanguage } = useLanguage();
-  const location = useLocation();
-  const isHomePage = location.pathname === '/';
-
-  const t = navbarTranslations[language];
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        langDropdownRef.current &&
-        !langDropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowLangDropdown(false);
-      }
-    };
-
-    if (showLangDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showLangDropdown]);
+  const t = navbarTranslations.en;
+  const authUrl = "https://reviewtorevenue.io/auth?mode=login&redirect=%2Fpricing&src=za";
 
   return (
     <>
@@ -87,51 +55,12 @@ export default function PublicNavBar() {
                 {t.contact}
               </Link>
               <a
-                href="https://reviewtorevenue.io/auth?mode=login&redirect=%2Fpricing&src=za"
+                href={authUrl}
                 className="px-4 py-2 text-sm font-medium rounded-lg transition"
                 style={{ backgroundColor: '#1A237E', color: 'white' }}
               >
                 {t.signIn}
               </a>
-              
-              {/* Language Switcher - Desktop Dropdown */}
-              <div className="relative ml-2" ref={langDropdownRef}>
-                <button
-                  className="flex items-center gap-1 text-xl hover:scale-105 transition-transform"
-                  title="Nyelv kiválasztása"
-                  onClick={() => setShowLangDropdown(prev => !prev)}
-                >
-                  {language === 'hu' ? '🇭🇺' : '🇬🇧'}
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
-                </button>
-
-                {showLangDropdown && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <button
-                      onClick={() => {
-                        setLanguage('en');
-                        setShowLangDropdown(false);
-                      }}
-                      className={`w-full px-3 py-2 text-left hover:bg-gray-100 rounded-t-lg ${
-                        language === 'en' ? 'font-semibold text-blue-600' : ''
-                      }`}
-                    >
-                      🇬🇧 English
-                    </button>
-                    <button
-                      onClick={() => {
-                        setLanguage('hu');
-                        setShowLangDropdown(false);
-                      }}
-                      className={`w-full px-3 py-2 text-left hover:bg-gray-100 rounded-b-lg ${
-                        language === 'hu' ? 'font-semibold text-blue-600' : ''
-                      }`}
-                    >
-                      🇭🇺 Magyar
-                    </button>
-                  </div>
-                )}
-              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -163,53 +92,13 @@ export default function PublicNavBar() {
                 {t.contact}
               </Link>
               <a
-                href="https://reviewtorevenue.io/auth?mode=login&redirect=%2Fpricing&src=za"
+                href={authUrl}
                 onClick={() => setMobileMenuOpen(false)}
                 className="block px-4 py-2 text-base font-medium rounded-md transition"
                 style={{ backgroundColor: '#1A237E', color: 'white' }}
               >
                 {t.signIn}
               </a>
-              
-              {/* Language Switcher - Mobile Dropdown */}
-              <div className="flex justify-center py-3 border-t border-gray-100 relative" ref={langDropdownRef}>
-                <button
-                  className="flex items-center gap-1 text-2xl hover:scale-105 transition-transform"
-                  onClick={() => setShowLangDropdown(prev => !prev)}
-                >
-                  {language === 'hu' ? '🇭🇺' : '🇬🇧'}
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
-                </button>
-
-                {showLangDropdown && (
-                  <div className="absolute top-full mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <button
-                      onClick={() => {
-                        setLanguage('en');
-                        setShowLangDropdown(false);
-                        setMobileMenuOpen(false);
-                      }}
-                      className={`w-full px-3 py-2 text-left hover:bg-gray-100 rounded-t-lg ${
-                        language === 'en' ? 'font-semibold text-blue-600' : ''
-                      }`}
-                    >
-                      🇬🇧 English
-                    </button>
-                    <button
-                      onClick={() => {
-                        setLanguage('hu');
-                        setShowLangDropdown(false);
-                        setMobileMenuOpen(false);
-                      }}
-                      className={`w-full px-3 py-2 text-left hover:bg-gray-100 rounded-b-lg ${
-                        language === 'hu' ? 'font-semibold text-blue-600' : ''
-                      }`}
-                    >
-                      🇭🇺 Magyar
-                    </button>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         )}
