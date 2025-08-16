@@ -80,7 +80,7 @@ export default function RoiCalculator({ hideFooterNote = false }: { hideFooterNo
   })();
 
   // 2️⃣ useState – egyszer indul el mountkor
-  const [avgSpend, setAvgSpend] = useState(saved.avgSpend ?? getDefaultAov());
+  const [avgSpend, setAvgSpend] = useState(saved.avgSpend ?? 400); // Rand default
   const [txInput, setTxInput] = useState(saved.txInput ?? 50);
   const [txMode, setTxMode] = useState<"day"|"month">(saved.txMode ?? "day");
   const [currentRating, setCurrentRating] = useState(saved.currentRating ?? 4.2);
