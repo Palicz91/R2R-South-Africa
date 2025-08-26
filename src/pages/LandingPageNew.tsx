@@ -894,56 +894,60 @@ export default function LandingPageNew() {
           <div className="flex flex-wrap justify-center gap-8">
             {[
               {
-                key: 'solo',
-                name: 'Solo',
-                price: 29.99,
+                key: 'starter',
+                name: 'Starter',
+                price: 750,
+                currency: 'R',
                 period: '/month',
                 highlight: false,
                 features: [
-                  '1 business', 
-                  'Up to 3 Active Wheel of Fortunes', 
-                  'Up to 200 reviews/month', 
-                  'QR code customization', 
-                  'Review page customization', 
-                  'Priority email support', 
-                  'Video Onboarding'
+                  '1 business',
+                  'Up to 3 Wheel of Fortunes',
+                  'Max. 200 new reviews/month',
+                  'Downloadable guest email list',
+                  'Short video tutorials',
+                  'Access to your own stats'
                 ],
                 buttonText: 'Get Started'
               },
               {
                 key: 'growth',
                 name: 'Growth',
-                price: 49.99,
+                price: 1500,
+                currency: 'R',
                 period: '/month',
                 highlight: true,
                 features: [
-                  'Everything in Solo', 
-                  'Up to 3 businesses', 
-                  'Up to 15 Active Wheels', 
-                  'Up to 1000 reviews/month', 
-                  'Custom branding', 
-                  'Custom prize weighting'
+                  'Everything in Starter',
+                  'Up to 5 businesses',
+                  'Up to 15 Wheel of Fortunes',
+                  'Max. 1000 new reviews/month',
+                  'Custom design'
                 ],
-                buttonText: 'Get Started'
+                buttonText: "I'll choose this"
               },
               {
-                key: 'unlimited',
-                name: 'Unlimited',
-                price: 129.99,
-                period: '/month',
+                key: 'professional',
+                name: 'Professional (Ideal for Franchise Businesses.)',
+                price: null, // Price on request
+                currency: 'R',
+                period: '',
                 highlight: false,
                 features: [
-                  'Everything in Growth', 
-                  'Unlimited businesses & reviews', 
-                  'Unlimited Wheel of Fortunes', 
-                  'Priority support (chat + email)', 
-                  'Feature-request fast-lane', 
-                  'Personalized Onboarding'
+                  'Everything in Growth',
+                  'Unlimited businesses',
+                  'Unlimited new reviews/month',
+                  'Unlimited Wheel of Fortunes',
+                  'Fast support – replies within 2 hours',
+                  'Feature requests',
+                  'Personalized onboarding'
                 ],
-                buttonText: 'Get Started'
+                buttonText: 'Email greig@reviewtorevenue.io for a personalized quote.'
               }
             ].map((plan) => {
               const planTranslation = t.pricingPlans?.[plan.key];
+              const isPriced = typeof plan.price === 'number';
+
               return (
                 <Card
                   key={plan.key}
@@ -954,12 +958,19 @@ export default function LandingPageNew() {
                   </h3>
 
                   <div className="flex items-baseline mb-8">
-                    <span className="text-4xl font-bold text-gray-900">
-                      ${calculatePrice(plan.price)}
-                    </span>
-                    <span className="text-gray-500 ml-1">
-                      {showAnnual ? '/year' : planTranslation?.period || plan.period}
-                    </span>
+                    {isPriced ? (
+                      <>
+                        <span className="text-4xl font-bold text-gray-900">
+                          {plan.currency}
+                          {fmtZAR.format(showAnnual ? Math.round(plan.price! * 12 * 0.8) : plan.price!)}
+                        </span>
+                        <span className="text-gray-500 ml-1">
+                          {showAnnual ? '/year' : (planTranslation?.period || plan.period)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-2xl font-bold text-gray-900">Price on request</span>
+                    )}
                   </div>
 
                   <ul className="space-y-4 mb-8">
@@ -971,15 +982,26 @@ export default function LandingPageNew() {
                     ))}
                   </ul>
 
-                  <a
-                    href={`https://reviewtorevenue.io/auth?mode=register&plan=${plan.key}${showAnnual ? '_yearly' : ''}&redirect=%2Fpricing&src=za`}
-                    onClick={() => fbq('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`)}
-                    className={`inline-block w-full py-4 rounded-full font-semibold text-center text-white bg-[#4FC3F7] hover:brightness-110 transition ${
-                      plan.highlight ? 'animate-pulse-cyan-shadow' : ''
-                    }`}
-                  >
-                    {planTranslation?.buttonText || plan.buttonText}
-                  </a>
+                  {isPriced ? (
+                    <a
+                      href={`https://reviewtorevenue.io/auth?mode=register&plan=${plan.key}${showAnnual ? '_yearly' : ''}&redirect=%2Fpricing&src=za`}
+                      onClick={() => fbq('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`)}
+                      className={`inline-block w-full py-4 rounded-full font-semibold text-center text-white bg-[#4FC3F7] hover:brightness-110 transition ${
+                        plan.highlight ? 'animate-pulse-cyan-shadow' : ''
+                      }`}
+                    >
+                      {planTranslation?.buttonText || plan.buttonText}
+                    </a>
+                  ) : (
+                    <div className="text-sm text-gray-600 text-center">
+                      <a
+                        href="mailto:greig@reviewtorevenue.io"
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        {plan.buttonText}
+                      </a>
+                    </div>
+                  )}
                 </Card>
               );
             })}
@@ -996,7 +1018,8 @@ export default function LandingPageNew() {
         </div>
       </section>
 
-      <Footer />
+      {/* Footer */}
+      <FooterZA />
     </div>
   );
 }
