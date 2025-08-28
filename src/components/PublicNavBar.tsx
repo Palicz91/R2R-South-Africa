@@ -5,6 +5,7 @@ import ScrollProgressBar from './ScrollProgressBar';
 
 const navbarTranslations = {
   en: {
+    home: "Home",
     useCases: "Use Cases",
     ourStory: "Our Story",
     pricing: "Pricing",
@@ -42,6 +43,9 @@ export default function PublicNavBar() {
 
             {/* Desktop Navigation */}
             <div className="hidden sm:flex sm:items-center sm:space-x-4">
+              <Link to="/" className="px-4 py-2 text-sm font-medium rounded-lg transition" style={{ color: '#1A237E', backgroundColor: '#E8EAF6' }}>
+                {t.home}
+              </Link>
               <Link to="/our-story" className="px-4 py-2 text-sm font-medium rounded-lg transition" style={{ color: '#1A237E', backgroundColor: '#E8EAF6' }}>
                 {t.ourStory}
               </Link>
@@ -79,6 +83,9 @@ export default function PublicNavBar() {
         {mobileMenuOpen && (
           <div className="sm:hidden border-t border-gray-200">
             <div className="pt-2 pb-3 space-y-1">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2 text-base font-medium rounded-md transition" style={{ color: '#1A237E', backgroundColor: '#E8EAF6' }}>
+                {t.home}
+              </Link>
               <Link to="/our-story" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2 text-base font-medium rounded-md transition" style={{ color: '#1A237E', backgroundColor: '#E8EAF6' }}>
                 {t.ourStory}
               </Link>
