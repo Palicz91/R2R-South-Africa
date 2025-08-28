@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, QrCode, Trophy, CheckCircle2, Brain, TrendingUp, Check, Sparkles, DollarSign } from 'lucide-react';
+import { CheckCircle2, Brain, TrendingUp, Check, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import Footer from '../components/Footer';
 import PublicNavBar from '../components/PublicNavBar';
@@ -14,12 +14,15 @@ import Card from '../components/ui/Card';
 import '../styles/typography.css';
 import RoiCalculator from '../components/RoiCalculator';
 
+const fmtZAR = new Intl.NumberFormat('en-ZA', {
+  style: 'currency',
+  currency: 'ZAR',
+  maximumFractionDigits: 0,
+});
+
 export default function LandingPageNew() {
   const navigate = useNavigate();
   const [showAnnual, setShowAnnual] = useState(false);
-  const calculatePrice = (price: number) => {
-    return showAnnual ? (price * 12 * 0.8).toFixed(2) : price.toFixed(2);
-  };
 
   const { t } = useTranslation();
   
@@ -42,17 +45,9 @@ export default function LandingPageNew() {
     script.async = true;
 
     script.onload = () => {
-      if (!document.getElementById('root')) {
-        const root = document.createElement('div');
-        root.id = 'root';
-        document.body.appendChild(root);
-      }
-
-      if (window.myChatWidget && typeof window.myChatWidget.load === 'function') {
-        window.myChatWidget.load({
-          id: '6147b061-c410-4f56-b2ca-e3e62b98384f',
-        });
-      }
+      (window as any).myChatWidget?.load?.({
+        id: '6147b061-c410-4f56-b2ca-e3e62b98384f',
+      });
     };
 
     document.body.appendChild(script);
@@ -105,7 +100,7 @@ export default function LandingPageNew() {
                 {/* Hero section CTA */}
                 <button
                   onClick={() => {
-                    fbq('trackCustom', 'Landing_Hero_CTA');
+                    (window as any).fbq?.('trackCustom', 'Landing_Hero_CTA');
                     const el = document.getElementById('roi-calculator');
                     if (!el) return;
 
@@ -417,7 +412,7 @@ export default function LandingPageNew() {
       <div className="flex justify-center">
         <motion.button
           onClick={() => {
-            fbq('trackCustom', 'Landing_Features_CTA');
+            (window as any).fbq?.('trackCustom', 'Landing_Features_CTA');
             const el = document.getElementById('setup-steps');
             if (!el) return;
 
@@ -528,7 +523,7 @@ export default function LandingPageNew() {
         <div className="flex justify-center mt-10">
           <motion.button
             onClick={() => {
-              fbq('trackCustom', 'Landing_RevenueBooster_CTA');
+              (window as any).fbq?.('trackCustom', 'Landing_RevenueBooster_CTA');
               document.getElementById('pricing-teaser')?.scrollIntoView({ behavior: 'smooth' });
             }}
             className="inline-flex items-center px-8 py-4 rounded-xl bg-[#4FC3F7] text-white font-semibold text-lg lg:text-xl shadow-lg hover:brightness-110 transition animate-pulse-cyan-shadow"
@@ -593,7 +588,7 @@ export default function LandingPageNew() {
             {/* CTA gomb bent tartva a bal oldali blokkon belül */}
             <motion.button
               onClick={() => {
-                fbq('trackCustom', 'Landing_Gamified_CTA');
+                (window as any).fbq?.('trackCustom', 'Landing_Gamified_CTA');
                 document.getElementById('pricing-teaser')?.scrollIntoView({ behavior: 'smooth' });
               }}
               className="mt-4 inline-flex items-center px-8 py-4 rounded-xl bg-[#4FC3F7] text-white font-semibold text-lg lg:text-xl shadow-lg hover:brightness-110 transition animate-pulse-cyan-shadow"
@@ -897,7 +892,6 @@ export default function LandingPageNew() {
                 key: 'starter',
                 name: 'Starter',
                 price: 750,
-                currency: 'R',
                 period: '/month',
                 highlight: false,
                 features: [
@@ -914,7 +908,6 @@ export default function LandingPageNew() {
                 key: 'growth',
                 name: 'Growth',
                 price: 1500,
-                currency: 'R',
                 period: '/month',
                 highlight: true,
                 features: [
@@ -930,7 +923,6 @@ export default function LandingPageNew() {
                 key: 'professional',
                 name: 'Professional (Ideal for Franchise Businesses.)',
                 price: null, // Price on request
-                currency: 'R',
                 period: '',
                 highlight: false,
                 features: [
@@ -961,7 +953,6 @@ export default function LandingPageNew() {
                     {isPriced ? (
                       <>
                         <span className="text-4xl font-bold text-gray-900">
-                          {plan.currency}
                           {fmtZAR.format(showAnnual ? Math.round(plan.price! * 12 * 0.8) : plan.price!)}
                         </span>
                         <span className="text-gray-500 ml-1">
@@ -985,7 +976,7 @@ export default function LandingPageNew() {
                   {isPriced ? (
                     <a
                       href={`https://reviewtorevenue.io/auth?mode=register&plan=${plan.key}${showAnnual ? '_yearly' : ''}&redirect=%2Fpricing&src=za`}
-                      onClick={() => fbq('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`)}
+                      onClick={() => (window as any).fbq?.('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`)}
                       className={`inline-block w-full py-4 rounded-full font-semibold text-center text-white bg-[#4FC3F7] hover:brightness-110 transition ${
                         plan.highlight ? 'animate-pulse-cyan-shadow' : ''
                       }`}
@@ -1019,7 +1010,7 @@ export default function LandingPageNew() {
       </section>
 
       {/* Footer */}
-      <FooterZA />
+      <Footer />
     </div>
   );
 }
