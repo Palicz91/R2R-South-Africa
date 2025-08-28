@@ -84,6 +84,7 @@ wePlayBigParagraphs: [
     anitaRole: "Strategic Partner – Hungary",
     greigRole: "Exclusive Partner",
     aliceRole: "Partner",
+    syedRole: "Partner",
     partnerCountriesText: "We're also proud to have partners in the UK 🇬🇧, Switzerland 🇨🇭, Indonesia 🇮🇩 and Croatia 🇭🇷.", 
 
     adamQuote: `Whenever I travel, I choose the restaurant, café, hotel — even the gym — based on reviews. But honestly, some of the best spots are totally off the radar...`,
@@ -91,8 +92,9 @@ wePlayBigParagraphs: [
     anitaQuote: `A Google Review is an under-the-radar marketing tool. If a guest sees a 4.2-star and a 4.8-star place on the map, they'll almost always choose the 4.8. It's simple psychology: if that many people were satisfied, chances are I will be too.`,
     greigQuote: `In South Africa's SMB market, many businesses operate far below their potential and lack the big marketing budgets to boost revenue. Review to Revenue offers an affordable, effective way to increase visibility, attract new customers, and keep them coming back.`,
     aliceQuote: `In New York and California, great spots can get buried under noise. When a guest's voice becomes visible proof, discovery and repeat visits follow. Review to Revenue makes that simple: one scan, one game, one more reason to come back.`,
-
-  }
+    syedQuote: `In today's digital-first world, customers read reviews before stepping into a business. Positive reviews drive trust, visibility, and customer growth making them one of the most powerful tools for sustainable business success.`,
+    joyceQuote: `A review is the customer's way of leaving a 'receipt of trust,' helping others decide with confidence. It's not just feedback, but a shared experience that guides the next customer on their journey.`,
+  },
 };
 
 export default function OurStoryPage() {
