@@ -208,7 +208,7 @@ export const translations = {
         buttonText: "I’ll choose this",
         features: [
           "Everything in Starter",
-          "Up to 3 businesses",
+          "Up to 5 businesses",
           "Up to 15 Wheel of Fortunes",
           "Max. 1000 new reviews/month",
           "Custom design"
