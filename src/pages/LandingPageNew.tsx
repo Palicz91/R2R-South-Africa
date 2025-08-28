@@ -851,19 +851,6 @@ export default function LandingPageNew() {
             {t.pricingTeaserTitle || "Simple, scalable pricing"}
           </h2>
 
-          {/* Trial + no credit card */}
-          <div className="max-w-2xl mx-auto text-center mt-2 mb-6">
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-green-100 text-green-800 rounded-full px-4 py-2 text-sm font-semibold mb-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              {t.freeTrialBanner || "Start your 14-day free trial — no credit card required!"}
-            </motion.div>
-          </div>
-
           {/* Toggle Monthly / Yearly */}
           <div className="flex justify-center items-center mt-2 mb-10">
             <span className={`text-sm mr-3 ${!showAnnual ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
