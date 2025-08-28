@@ -452,15 +452,15 @@ export default function OurStoryPage() {
         }
       },
       {
-        img: 'https://bnumwujvaribzfexpmmc.supabase.co/storage/v1/object/public/website-materials/photos/silin-gan.png',
-        name: 'Siling Gan',
-        country: 'Singapore',
-        flag: '🇸🇬',
-        role: '',
+        img: 'https://bnumwujvaribzfexpmmc.supabase.co/storage/v1/object/public/website-materials/photos/greig.jpeg',
+        name: 'Greig Stephen Fitzell',
+        country: 'South Africa',
+        flag: '🇿🇦',
+        role: t.greigRole,
         exclusive: true,
-        quote: t.silingQuote,
+        quote: t.greigQuote,
         socials: {
-          linkedin: 'https://www.linkedin.com/in/silinggankheeeng/'
+          linkedin: 'https://www.linkedin.com/in/greig-fitzell/'
         }
       },
       {
@@ -485,11 +485,16 @@ export default function OurStoryPage() {
         viewport={{ once: true }}
         transition={{ delay: idx * 0.2 }}
       >
-        <img
-          src={img}
-          alt={name}
-          className="w-32 h-32 mx-auto rounded-full object-cover shadow-lg"
-        />
+        {/* egységes avatar-wrapper mindenkinél */}
+        <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-lg">
+          <img
+            src={img}
+            alt={name}
+            className={`w-full h-full object-cover
+              ${name === "Syed Shaddad" ? "object-[center_40%]" : ""}
+            `}
+          />
+        </div>
         <h3 className="text-xl font-semibold text-gray-900">{name}</h3>
 
         <div className="flex items-center justify-center flex-wrap gap-2 text-sm text-gray-600">
@@ -551,19 +556,19 @@ export default function OurStoryPage() {
     ))}
   </div>
 
-  {/* Second row: new partners, centered */}
-  <div className="grid md:grid-cols-2 gap-12 max-w-3xl mx-auto mt-6">
+  {/* Second row: Siling, Alice, Syed */}
+  <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto mt-6">
     {[
       {
-        img: 'https://bnumwujvaribzfexpmmc.supabase.co/storage/v1/object/public/website-materials/photos/greig.jpeg',
-        name: 'Greig Stephen Fitzell',
-        country: 'South Africa',
-        flag: '🇿🇦',
-        role: t.greigRole,
+        img: 'https://bnumwujvaribzfexpmmc.supabase.co/storage/v1/object/public/website-materials/photos/silin-gan.png',
+        name: 'Siling Gan',
+        country: 'Singapore',
+        flag: '🇸🇬',
+        role: '',
         exclusive: true,
-        quote: t.greigQuote,
+        quote: t.silingQuote,
         socials: {
-          linkedin: 'https://www.linkedin.com/in/greig-fitzell/'
+          linkedin: 'https://www.linkedin.com/in/silinggankheeeng/'
         }
       },
       {
@@ -578,6 +583,18 @@ export default function OurStoryPage() {
           linkedin: 'https://www.linkedin.com/in/alice2023/'
         }
       },
+      {
+        img: 'https://bnumwujvaribzfexpmmc.supabase.co/storage/v1/object/public/website-materials/photos/Syed.jpeg',
+        name: 'Syed Shaddad',
+        country: 'Malaysia',
+        flag: '🇲🇾',
+        role: t.syedRole,
+        exclusive: false,
+        quote: t.syedQuote,
+        socials: {
+          linkedin: 'https://www.linkedin.com/in/syedshaddad/'
+        }
+      },
     ].map(({ img, name, country, flag, role, exclusive, quote, socials }, idx) => (
       <motion.div
         key={name}
@@ -587,11 +604,16 @@ export default function OurStoryPage() {
         viewport={{ once: true }}
         transition={{ delay: idx * 0.15 }}
       >
-        <img
-          src={img}
-          alt={name}
-          className="w-32 h-32 mx-auto rounded-full object-cover shadow-lg"
-        />
+        {/* egységes avatar-wrapper mindenkinél */}
+        <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-lg">
+          <img
+            src={img}
+            alt={name}
+            className={`w-full h-full object-cover
+              ${name === "Syed Shaddad" ? "object-[center_40%]" : ""}
+            `}
+          />
+        </div>
         <h3 className="text-xl font-semibold text-gray-900">{name}</h3>
 
         <div className="flex items-center justify-center flex-wrap gap-2 text-sm text-gray-600">
@@ -650,6 +672,85 @@ export default function OurStoryPage() {
         )}
       </motion.div>
     ))}
+  </div>
+
+  {/* Third row: Joyce centered with invisible side cards */}
+  <div className="max-w-5xl mx-auto mt-6">
+    <div className="grid md:grid-cols-3 gap-12">
+      {/* Left invisible placeholder (only from md) */}
+      <div
+        className="hidden md:block md:invisible"
+        aria-hidden="true"
+      >
+        <div className="text-center space-y-4 ring-2 ring-[#4FC3F7] rounded-xl p-6">
+          <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-lg" />
+          <h3 className="text-xl font-semibold text-gray-900">&nbsp;</h3>
+          <div className="flex items-center justify-center flex-wrap gap-2 text-sm text-gray-600">
+            <span className="px-3 py-1 bg-[#4FC3F7] text-white text-xs font-semibold rounded-full">&nbsp;</span>
+            <span className="font-semibold">&nbsp;</span>
+          </div>
+          <p className="italic text-gray-600 mt-4">&nbsp;</p>
+        </div>
+      </div>
+
+      {/* Joyce */}
+      <motion.div
+        className="text-center space-y-4 ring-2 ring-[#4FC3F7] rounded-xl p-6"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.15 }}
+      >
+        <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-lg">
+          <img
+            src="https://bnumwujvaribzfexpmmc.supabase.co/storage/v1/object/public/website-materials/photos/Joyce.jpeg"
+            alt="Joyce Kau"
+            loading="lazy"
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        <h3 className="text-xl font-semibold text-gray-900">Joyce Kau</h3>
+
+        <div className="flex items-center justify-center flex-wrap gap-2 text-sm text-gray-600">
+          <span className="px-3 py-1 bg-[#4FC3F7] text-white text-xs font-semibold rounded-full">
+            {t.syedRole}
+          </span>
+          <span className="font-semibold">Malaysia 🇲🇾</span>
+        </div>
+
+        <p className="italic text-gray-600 mt-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          "{t.joyceQuote}"
+        </p>
+
+        <div className="flex justify-center gap-4 mt-4 text-xl">
+          <a
+            href="https://www.linkedin.com/in/joycekau/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#0A66C2] hover:opacity-80"
+          >
+            <FaLinkedin />
+          </a>
+        </div>
+      </motion.div>
+
+      {/* Right invisible placeholder (only from md) */}
+      <div
+        className="hidden md:block md:invisible"
+        aria-hidden="true"
+      >
+        <div className="text-center space-y-4 ring-2 ring-[#4FC3F7] rounded-xl p-6">
+          <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-lg" />
+          <h3 className="text-xl font-semibold text-gray-900">&nbsp;</h3>
+          <div className="flex items-center justify-center flex-wrap gap-2 text-sm text-gray-600">
+            <span className="px-3 py-1 bg-[#4FC3F7] text-white text-xs font-semibold rounded-full">&nbsp;</span>
+            <span className="font-semibold">&nbsp;</span>
+          </div>
+          <p className="italic text-gray-600 mt-4">&nbsp;</p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <p
