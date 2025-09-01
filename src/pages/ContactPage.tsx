@@ -245,7 +245,7 @@ export default function ContactPage() {
 
             {/* Direct email fallback */}
             <div className="mt-6 text-center text-sm text-gray-500">
-              {t.fallback} <a href="mailto:hello@reviewtorevenue.co.za" className="text-blue-600 hover:underline">hello@reviewtorevenue.co.za</a>
+              {t.fallback} <a href="mailto:greig@reviewtorevenue.io" className="text-blue-600 hover:underline">greig@reviewtorevenue.io</a>
             </div>
           </div>
         </div>
