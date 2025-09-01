@@ -28,8 +28,8 @@ export default function Footer() {
             <div className="space-y-3 text-sm text-gray-600">
               <div className="flex items-start gap-2">
                 <Mail className="w-4 h-4 mt-1 flex-shrink-0" />
-                <a href="mailto:hello@reviewtorevenue.co.za" className="hover:text-gray-900">
-                  hello@reviewtorevenue.co.za
+                <a href="mailto:greig@reviewtorevenue.io" className="hover:text-gray-900">
+                  greig@reviewtorevenue.io
                 </a>
               </div>
               <div className="flex items-start gap-2">
