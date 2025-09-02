@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, Brain, TrendingUp, Check, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import Footer from '../components/Footer';
@@ -20,9 +19,54 @@ const fmtZAR = new Intl.NumberFormat('en-ZA', {
   maximumFractionDigits: 0,
 });
 
+// ZA → Global plan mapping
+const PLAN_MAP: Record<string, 'solo'|'growth'|'unlimited'> = {
+  starter: 'solo',
+  growth: 'growth',
+  professional: 'unlimited',
+};
+
+// Helper to pick specific params
+const pickParams = (sp: URLSearchParams, keys: string[]) => {
+  const out = new URLSearchParams();
+  keys.forEach(k => {
+    const v = sp.get(k);
+    if (v) out.set(k, v);
+  });
+  return out.toString();
+};
+
+const EXTRA_KEYS = ['ref','utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
+
+const buildIoAuthRedirect = (zaKey: string, isAnnual: boolean, sp?: URLSearchParams) => {
+  const mapped = PLAN_MAP[zaKey];
+  if (!mapped) return null;
+
+  const planParam = mapped + (isAnnual ? '_yearly' : '');
+  const base = new URLSearchParams({ plan: planParam, currency: 'ZAR', src: 'za' });
+
+  if (sp) {
+    const extra = pickParams(sp, EXTRA_KEYS);
+    if (extra) {
+      const extraQs = new URLSearchParams(extra);
+      extraQs.forEach((v, k) => base.set(k, v));
+    }
+  }
+
+  const redirectPath = `/pricing?${base.toString()}`;
+
+  const authQs = new URLSearchParams({ mode: 'register', redirect: redirectPath });
+  const coupon = sp?.get('coupon');
+  if (coupon) authQs.set('coupon', coupon);
+  authQs.set('src', 'za'); // AuthPage top-level src
+
+  return `https://reviewtorevenue.io/auth?${authQs.toString()}`;
+};
+
 export default function LandingPageNew() {
   const navigate = useNavigate();
   const [showAnnual, setShowAnnual] = useState(false);
+  const [searchParams] = useSearchParams();
 
   const { t } = useTranslation();
   
@@ -844,12 +888,26 @@ export default function LandingPageNew() {
       {/* In-page Pricing Teaser */}
       <Section id="pricing-teaser">
         <div className="text-center">
-<h2 className="text-xl text-center text-gray-900 font-semibold mb-6">
-  {t.moreReviewsFlow}
-</h2>
+          <h2 className="text-xl text-center text-gray-900 font-semibold mb-6">
+            {t.moreReviewsFlow}
+          </h2>
           <h2 className="h2 text-gray-900 mb-4">
             {t.pricingTeaserTitle || "Simple, scalable pricing"}
           </h2>
+
+          {/* Money-back guarantee badge */}
+          <div className="max-w-3xl mx-auto text-center mt-2 mb-4">
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center gap-2 bg-green-100 text-green-800 rounded-full px-4 py-2 text-sm font-semibold"
+            >
+              <Sparkles className="w-4 h-4" />
+              30-day money-back guarantee
+            </motion.div>
+          </div>
 
           {/* Toggle Monthly / Yearly */}
           <div className="flex justify-center items-center mt-2 mb-10">
@@ -932,6 +990,15 @@ export default function LandingPageNew() {
                   key={plan.key}
                   className={`p-8 w-full max-w-sm text-left ${plan.highlight ? 'border border-[#4FC3F7] ring-2 ring-[#4FC3F7]' : ''}`}
                 >
+                  {/* Most Popular badge */}
+                  {plan.key === 'growth' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 mb-3 rounded-full
+                                     text-[11px] font-semibold uppercase tracking-wide
+                                     bg-[#E6F7FF] text-[#0284C7] border border-[#BAE6FD]">
+                      Most Popular
+                    </span>
+                  )}
+
                   <h3 className="h3 text-gray-900 mb-4">
                     {planTranslation?.name || plan.name}
                   </h3>
@@ -961,15 +1028,25 @@ export default function LandingPageNew() {
                   </ul>
 
                   {isPriced ? (
-                    <a
-                      href={`https://reviewtorevenue.io/auth?mode=register&plan=${plan.key}${showAnnual ? '_yearly' : ''}&redirect=%2Fpricing&src=za`}
-                      onClick={() => (window as any).fbq?.('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`)}
+                    <button
+                      onClick={() => {
+                        (window as any).fbq?.('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`);
+                        try {
+                          localStorage.setItem('src', 'za');          // lock ZAR
+                          localStorage.setItem('userCountry', 'ZA');  // Auth fallback
+                          const href = buildIoAuthRedirect(plan.key, showAnnual, searchParams);
+                          if (href) window.location.href = href;
+                        } catch (e) {
+                          console.error('ZA→IO redirect failed', e);
+                          window.location.href = 'https://reviewtorevenue.io/auth?mode=register&src=za';
+                        }
+                      }}
                       className={`inline-block w-full py-4 rounded-full font-semibold text-center text-white bg-[#4FC3F7] hover:brightness-110 transition ${
                         plan.highlight ? 'animate-pulse-cyan-shadow' : ''
                       }`}
                     >
                       {planTranslation?.buttonText || plan.buttonText}
-                    </a>
+                    </button>
                   ) : (
                     <div className="text-sm text-gray-600 text-center">
                       <a
