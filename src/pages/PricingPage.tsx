@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Check, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useUserPlan } from '../hooks/useUserPlan';
 import Footer from '../components/Footer';
 import PublicNavBar from '../components/PublicNavBar';
 import Layout from '../components/Layout';
-import { createCheckoutSession } from '../lib/stripe';
-import { products } from '../stripe-config';
 import { supabase } from '../lib/supabaseClient';
 
 // Map ZA → Global plan keys
@@ -17,16 +15,62 @@ const PLAN_MAP: Record<string, 'solo'|'growth'|'unlimited'> = {
   professional: 'unlimited',
 };
 
-const buildIoAuthRedirect = (zaKey: string, isAnnual: boolean) => {
-  const mapped = PLAN_MAP[zaKey];
-  if (!mapped) return null;
-  const planParam = mapped + (isAnnual ? '_yearly' : '');
-  const redirectPath = `/pricing?plan=${planParam}&currency=ZAR&src=za`;
-  return `https://reviewtorevenue.io/auth?mode=register&redirect=${encodeURIComponent(redirectPath)}`;
+// Helper to pick specific params
+const pickParams = (sp: URLSearchParams, keys: string[]) => {
+  const out = new URLSearchParams();
+  keys.forEach(k => {
+    const v = sp.get(k);
+    if (v) out.set(k, v);
+  });
+  return out.toString();
 };
 
-const buildIoAuthRedirectLTD = () =>
-  `https://reviewtorevenue.io/auth?mode=register&redirect=${encodeURIComponent('/pricing?ltd=1#founding-member')}&currency=ZAR&src=za`;
+const EXTRA_KEYS = ['ref','utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
+
+const buildIoAuthRedirect = (zaKey: string, isAnnual: boolean, sp?: URLSearchParams) => {
+  const mapped = PLAN_MAP[zaKey];
+  if (!mapped) return null;
+
+  const planParam = mapped + (isAnnual ? '_yearly' : '');
+  const base = new URLSearchParams({ plan: planParam, currency: 'ZAR', src: 'za' });
+
+  // UTM/ref parameter transfer
+  if (sp) {
+    const extra = pickParams(sp, EXTRA_KEYS);
+    if (extra) {
+      const extraQs = new URLSearchParams(extra);
+      extraQs.forEach((v, k) => base.set(k, v));
+    }
+  }
+
+  const redirectPath = `/pricing?${base.toString()}`;
+
+  // NEW: coupon directly in /auth query (if exists)
+  const authQs = new URLSearchParams({ mode: 'register', redirect: redirectPath });
+  const coupon = sp?.get('coupon');
+  if (coupon) authQs.set('coupon', coupon);
+
+  // NEW: top-level src=za for AuthPage (mandatory phone)
+  authQs.set('src', 'za');
+
+  return `https://reviewtorevenue.io/auth?${authQs.toString()}`;
+};
+
+const buildIoAuthRedirectLTD = (sp?: URLSearchParams) => {
+  const redirQs = new URLSearchParams({ ltd: '1', currency: 'ZAR', src: 'za' });
+  const redirectPath = `/pricing?${redirQs.toString()}#founding-member`;
+
+  const authQs = new URLSearchParams({ mode: 'register', redirect: redirectPath });
+
+  // optional coupon forwarding
+  const coupon = sp?.get('coupon');
+  if (coupon) authQs.set('coupon', coupon);
+
+  // top-level src for AuthPage
+  authQs.set('src', 'za');
+
+  return `https://reviewtorevenue.io/auth?${authQs.toString()}`;
+};
 
 export default function PricingPage() {
   const [showAnnual, setShowAnnual] = useState(false);
@@ -34,7 +78,6 @@ export default function PricingPage() {
   const { plan: currentPlan, status, trial_ends_at } = useUserPlan();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [loadingPlanKey, setLoadingPlanKey] = useState<string | null>(null);
 
   // Add ZAR formatter
   const fmtZAR = new Intl.NumberFormat('en-ZA');
@@ -53,47 +96,6 @@ export default function PricingPage() {
 
     fetchUser();
   }, []);
-
-  useEffect(() => {
-    const planParam = searchParams.get('plan');
-    if (!planParam) return;
-
-    const runCheckout = async () => {
-      let tries = 0;
-      let session = null;
-
-      while (tries < 5 && !session) {
-        const result = await supabase.auth.getSession();
-        session = result.data.session;
-        if (!session) {
-          await new Promise((resolve) => setTimeout(resolve, 300));
-          tries++;
-        }
-      }
-
-      if (!session) return;
-
-      const isAnnual = planParam.includes('_yearly');
-      const planName = isAnnual ? planParam.replace('_yearly', '') : planParam;
-      const priceId = getStripePriceId(planName, isAnnual);
-      if (!priceId) return;
-
-      try {
-        await createCheckoutSession(priceId, 'subscription');
-      } catch (err) {
-        console.error("Auto-checkout failed", err);
-      }
-    };
-
-    runCheckout();
-  }, [searchParams]);
-
-  const getStripePriceId = (planKey: string, isAnnual: boolean) => {
-    // Use the plan key directly rather than the name
-    const key = planKey.toLowerCase() + (isAnnual ? '_yearly' : '');
-    const product = products[key];
-    return product?.priceId || null;
-  };
 
   const plans = [
     {
@@ -296,48 +298,18 @@ export default function PricingPage() {
 
                     {plan.price ? (
                       <button
-                        onClick={async () => {
-                          if (!user) {
-                            localStorage.setItem('src', 'za'); // lock ZAR
-                            const redirect = buildIoAuthRedirect(plan.key, showAnnual);
-                            if (redirect) window.location.href = redirect;
-                            return;
-                          }
-
-                          const priceId = getStripePriceId(plan.key, showAnnual);
-                          if (!priceId) {
-                            console.error('Price ID not found for plan:', plan.key);
-                            return;
-                          }
-
-                          try {
-                            setLoadingPlanKey(plan.key);
-                            await createCheckoutSession(priceId, 'subscription');
-                          } catch (error) {
-                            console.error('Failed to create checkout session:', error);
-                          } finally {
-                            setLoadingPlanKey(null);
-                          }
+                        onClick={() => {
+                          localStorage.setItem('src', 'za'); // lock ZAR on global site
+                          localStorage.setItem('userCountry', 'ZA'); // AuthPage fallback
+                          const redirect = buildIoAuthRedirect(plan.key, showAnnual, searchParams);
+                          if (redirect) window.location.href = redirect;
                         }}
                         className={`w-full py-3 px-4 rounded-lg font-medium transition-all flex justify-center items-center gap-2
-                          ${isCurrentPlan
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : plan.highlight
-                              ? 'bg-[#4FC3F7] text-white hover:brightness-110 animate-pulse-cyan-shadow'
-                              : 'bg-[#4FC3F7] text-white hover:brightness-110'}`}
-                        disabled={isCurrentPlan || loadingPlanKey === plan.key}
+                          ${plan.highlight
+                            ? 'bg-[#4FC3F7] text-white hover:brightness-110 animate-pulse-cyan-shadow'
+                            : 'bg-[#4FC3F7] text-white hover:brightness-110'}`}
                       >
-                        {loadingPlanKey === plan.key && (
-                          <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"></path>
-                          </svg>
-                        )}
-                        {loadingPlanKey === plan.key
-                          ? 'Redirecting to Stripe...'
-                          : isCurrentPlan
-                            ? 'Current Plan'
-                            : plan.buttonText}
+                        {plan.buttonText}
                       </button>
                     ) : (
                       <div className="text-sm text-gray-600 mt-auto text-center">
