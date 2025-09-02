@@ -425,6 +425,46 @@ export default function TermsPage() {
         <h2>17. UPDATES TO TERMS</h2>
         <p>We may update these Terms periodically. We will notify you of material changes by email or through our platform. Continued use of our Services after changes constitutes acceptance of the updated Terms.</p>
 
+        <h2>18. MONEY-BACK GUARANTEE</h2>
+        <p>
+          We want you to be genuinely happy with Review to Revenue. If you've actively used the platform and you're not satisfied, you may request a refund within 30 days of your first paid subscription charge ("Guarantee Window").
+        </p>
+
+        <h3>18.1 Eligibility (actual use required)</h3>
+        <p>To qualify, your account must show meaningful use of core features during the Guarantee Window, such as:</p>
+        <ul>
+          <li>completed onboarding and setup, and</li>
+          <li>created at least one active campaign or review flow, and</li>
+          <li>used the product to collect reviews and/or email sign-ups (i.e., real customer interactions).</li>
+        </ul>
+        <p>
+          Accounts that did not start using the product (no campaigns/live usage) are <strong>not</strong> eligible for a refund.
+        </p>
+
+        <h3>18.2 How to request a refund</h3>
+        <p>
+          Email <a href="mailto:hello@reviewtorevenue.io">hello@reviewtorevenue.io</a> with the subject line <strong>"Money Back Guarantee"</strong> and include:
+        </p>
+        <ul>
+          <li>your account email,</li>
+          <li>the date of your first paid charge, and</li>
+          <li>a brief note on what fell short for you.</li>
+        </ul>
+
+        <h3>18.3 What happens next</h3>
+        <ul>
+          <li>We'll review eligibility based on actual usage and respond within 5–7 business days.</li>
+          <li>Approved refunds are issued to the original payment method. Processing times may vary by provider.</li>
+        </ul>
+
+        <h3>18.4 Important notes</h3>
+        <ul>
+          <li>One refund per customer/account.</li>
+          <li>Refunds apply only to the first payment within the Guarantee Window.</li>
+          <li>Abuse, fraud, or policy violations void eligibility.</li>
+          <li>This Guarantee does not limit any rights you may have under applicable law.</li>
+        </ul>
+
         <div className="mt-8 pt-8 border-t border-gray-200">
           <p className="text-sm text-gray-600">
             <Link to="/privacy" className="text-blue-600 hover:text-blue-800 mr-4">View Privacy Policy</Link>
