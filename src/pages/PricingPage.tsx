@@ -10,6 +10,24 @@ import { createCheckoutSession } from '../lib/stripe';
 import { products } from '../stripe-config';
 import { supabase } from '../lib/supabaseClient';
 
+// Map ZA → Global plan keys
+const PLAN_MAP: Record<string, 'solo'|'growth'|'unlimited'> = {
+  starter: 'solo',
+  growth: 'growth',
+  professional: 'unlimited',
+};
+
+const buildIoAuthRedirect = (zaKey: string, isAnnual: boolean) => {
+  const mapped = PLAN_MAP[zaKey];
+  if (!mapped) return null;
+  const planParam = mapped + (isAnnual ? '_yearly' : '');
+  const redirectPath = `/pricing?plan=${planParam}&currency=ZAR&src=za`;
+  return `https://reviewtorevenue.io/auth?mode=register&redirect=${encodeURIComponent(redirectPath)}`;
+};
+
+const buildIoAuthRedirectLTD = () =>
+  `https://reviewtorevenue.io/auth?mode=register&redirect=${encodeURIComponent('/pricing?ltd=1#founding-member')}&currency=ZAR&src=za`;
+
 export default function PricingPage() {
   const [showAnnual, setShowAnnual] = useState(false);
   const [searchParams] = useSearchParams();
@@ -190,19 +208,8 @@ export default function PricingPage() {
                   className="inline-flex items-center gap-2 bg-green-100 text-green-800 rounded-full px-4 py-2 text-sm font-semibold mb-4"
                 >
                   <Sparkles className="w-4 h-4" />
-                  Start your 14-day free trial — no credit card required!
+                  30-day money-back guarantee
                 </motion.div>
-
-                <p className="text-gray-600 text-sm mb-4">
-                  No credit card required. No commitment. Just results.
-                </p>
-
-                <a
-                  href="https://reviewtorevenue.io/auth?mode=register&redirect=%2Fpricing&src=za"
-                  className="inline-block bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-all animate-pulse-green"
-                >
-                  Start free trial
-                </a>
               </div>
             )}
 
@@ -291,7 +298,9 @@ export default function PricingPage() {
                       <button
                         onClick={async () => {
                           if (!user) {
-                            window.location.href = `https://reviewtorevenue.io/auth?mode=register&redirect=${encodeURIComponent('/pricing')}&src=za`;
+                            localStorage.setItem('src', 'za'); // lock ZAR
+                            const redirect = buildIoAuthRedirect(plan.key, showAnnual);
+                            if (redirect) window.location.href = redirect;
                             return;
                           }
 
