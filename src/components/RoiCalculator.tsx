@@ -367,7 +367,7 @@ export default function RoiCalculator({ hideFooterNote = false }: { hideFooterNo
             onClick={handleCta}
             className="w-full mt-4 block text-center text-lg font-semibold rounded-xl bg-[#4FC3F7] text-white py-4 shadow-lg hover:brightness-110 transition animate-pulse-cyan-shadow font-montserrat"
           >
-            Try it free for 14 days!
+            GET STARTED
           </button>
         </CardContent>
       </div>
