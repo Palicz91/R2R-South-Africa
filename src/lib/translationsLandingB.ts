@@ -22,7 +22,7 @@ These are the building blocks of a fully booked business – all with just one s
   },
 
   calculatorIntro: {
-    text: 'Imagine you had a <strong>special bank account</strong>. Its balance shows the amount <strong>you could have earned in a given month</strong> — but didn't, because you kept everything as it is. <br/><br/>How big is that amount? <strong>You can easily calculate it.</strong><br/><br/>With this calculator you'll see <strong>how much money you miss out on every month</strong> if you don't set up a <strong>customer return, Google Review, and email collection system</strong>.'
+    text: 'Imagine you had a <strong>special bank account</strong>. Its balance shows the amount <strong>you could have earned in a given month</strong> — but didn\'t, because you kept everything as it is. <br/><br/>How big is that amount? <strong>You can easily calculate it.</strong><br/><br/>With this calculator you\'ll see <strong>how much money you miss out on every month</strong> if you don\'t set up a <strong>customer return, Google Review, and email collection system</strong>.'
   },
   revenueCouldHaveMade: "Revenue you miss out on every month",
 
