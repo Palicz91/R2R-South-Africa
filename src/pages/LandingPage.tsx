@@ -13,162 +13,16 @@ import Section from '../components/ui/Section';
 import Card from '../components/ui/Card';
 import '../styles/typography.css';
 import RoiCalculator from '../components/RoiCalculator';
-import { useLanguage } from '../context/LanguageContext';
 
-const CALENDLY_LINK_HU = "https://calendly.com/hello-reviewtorevenue/review-to-revenue-hu";
-const CALENDLY_LINK_EN = "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ1cBfiHZeT3AwuKq8SSfevbdt86d57qssUoE5RnLksvtQJqlPslCv4H81ymd0UkPkhdMuIMt_ms";
-const WHATSAPP_LINK = "https://wa.me/4915143369633";
-
-const FM_BASE_BY_CUR = { USD: 99.0, HUF: 39990, MYR: 449, SGD: 129, ZAR: 99.0 } as const;
-const FM_ADDON_BY_CUR = { USD: 69.0, HUF: 24900, MYR: 299, SGD: 89, ZAR: 69.0 } as const;
-const FM_ADDON_MAX = 10;
+const fmtZAR = new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' });
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const [showAnnual, setShowAnnual] = useState(false);
-  
-  // Currency state
-  const [currency, setCurrency] = useState<SupportedCurrency>('USD');
-  const [currencyReady, setCurrencyReady] = useState(false);
 
-  // LTD countdown state
-  const [countdown, setCountdown] = useState('');
-  const [ltdExpired, setLtdExpired] = useState(false);
-
-  // LTD state
-  const [extraBusinesses, setExtraBusinesses] = useState(0);
-  const [ltdLoading, setLtdLoading] = useState(false);
-
-  const { t } = useTranslation();
-  const { language } = useLanguage();
+  const { t } = useTranslation({ forceLang: 'en' });
   
   useOptiMonk();
-
-  // LTD values
-  const fmBase = FM_BASE_BY_CUR[currency] ?? FM_BASE_BY_CUR.USD;
-  const fmAddon = FM_ADDON_BY_CUR[currency] ?? FM_ADDON_BY_CUR.USD;
-  const fmTotal = fmBase + extraBusinesses * fmAddon;
-
-  // 3) Lifetime tier prices by currency (USD default, MYR, SGD)
-  const LTD_PRICES_BY_CUR: Partial<Record<SupportedCurrency, number[]>> = {
-    USD: [99, 149, 199, 249],
-    MYR: [449, 649, 849, 1049],
-    SGD: [129, 199, 269, 339],
-    // HUF uses the translated numbers as-is (no override)
-  };
-
-  // Helper: replace the first <strong>…</strong> in a line with the formatted price.
-  // If no <strong>…</strong> found, append the price at the end.
-  const injectPrice = (rowHtml: string, price: number) => {
-    const priceHtml = `<strong>${fmtMoney(price)}</strong>`;
-    if (/<strong>.*?<\/strong>/.test(rowHtml)) {
-      return rowHtml.replace(/<strong>.*?<\/strong>/, priceHtml);
-    }
-    return `${rowHtml} — ${priceHtml}`;
-  };
-
-  // LTD countdown effect
-  useEffect(() => {
-    const now = new Date();
-    const deadline = new Date(now.getFullYear(), 9, 0, 23, 59, 59);
-    const id = setInterval(() => {
-      const ms = deadline.getTime() - Date.now();
-      if (ms <= 0) {
-        setCountdown('0d 0h 0m 0s');
-        setLtdExpired(true);
-        clearInterval(id);
-        return;
-      }
-      const s = Math.floor(ms / 1000);
-      const d = Math.floor(s / 86400);
-      const h = Math.floor((s % 86400) / 3600);
-      const m = Math.floor((s % 3600) / 60);
-      const sec = s % 60;
-      setCountdown(`${d}d ${h}h ${m}m ${sec}s`);
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  // Currency detection from geo/query params with language override
-  useEffect(() => {
-    (async () => {
-      const params = new URLSearchParams(window.location.search);
-      const qp = (params.get('currency') || '').toUpperCase();
-      // 1) Add SGD to the explicit currency allow-list
-      const explicit = (['USD','ZAR','MYR','HUF','SGD'].includes(qp) ? qp : null) as SupportedCurrency | null;
-
-      let cur = await resolveCurrencyFromGeo(explicit);
-
-      // Only override with language if there's NO explicit query param
-      if (!explicit && language === 'hu') {
-        cur = 'HUF';
-      }
-
-      setCurrency(cur);
-      setCurrencyReady(true);
-    })();
-  }, [language]);
-
-  // Currency formatter
-  // 2) Locale tweak (add en-SG)
-  const numberLocale =
-    currency === 'MYR' ? 'ms-MY'
-  : currency === 'HUF' ? 'hu-HU'
-  : currency === 'ZAR' ? 'en-ZA'
-  : currency === 'SGD' ? 'en-SG'
-  : 'en-US';
-
-  const fmt = new Intl.NumberFormat(numberLocale, {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: currency === 'HUF' ? 0 : 2,
-  });
-
-  // Unified money formatter for consistent SGD handling
-  const fmtMoney = (v: number) =>
-    currency === 'SGD' ? `S$${v.toFixed(2)}` : fmt.format(v);
-
-  // Currency-aware price calculator for teaser
-  const teaserDisplayPrice = (planKey: 'solo'|'growth'|'unlimited') => {
-    // Base monthly in each currency
-    const base = (() => {
-      if (currency === 'MYR') {
-        if (planKey === 'solo') return 129;
-        if (planKey === 'growth') return 219;
-        if (planKey === 'unlimited') return 549;
-      }
-      if (currency === 'HUF') {
-        if (planKey === 'solo') return 9990;
-        if (planKey === 'growth') return 19990;
-        if (planKey === 'unlimited') return 44990; // "Professional"
-      }
-      if (currency === 'ZAR') {
-        if (planKey === 'solo') return 750;
-        if (planKey === 'growth') return 1250;
-        if (planKey === 'unlimited') return 3250;
-      }
-      if (currency === 'SGD') {
-        if (planKey === 'solo') return 39.99;
-        if (planKey === 'growth') return 64.99;
-        if (planKey === 'unlimited') return 169.99;
-      }
-      // USD defaults
-      if (planKey === 'solo') return 29.99;
-      if (planKey === 'growth') return 49.99;
-      if (planKey === 'unlimited') return 129.99;
-      return 0;
-    })();
-
-    const amount = showAnnual ? base * 12 * 0.8 : base; // Yearly = 20% off
-    let price = fmt.format(amount);
-    
-    // Special case for SGD
-    if (currency === 'SGD') {
-      price = 'S$' + amount.toFixed(2);
-    }
-    
-    return price;
-  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -176,7 +30,7 @@ export default function LandingPage() {
         navigate('/dashboard');
       }
     });
-  }, []);
+  }, [navigate]);
   
   // Add AgentiveHub Chat Widget
   useEffect(() => {
@@ -211,13 +65,6 @@ export default function LandingPage() {
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6 }
   };
-
-  // Guard render until currency is ready
-  if (!currencyReady) {
-    return <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
-    </div>;
-  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -394,7 +241,7 @@ export default function LandingPage() {
     <div className="mx-auto w-full max-w-[560px] flex justify-center items-center">
       <img
         src="https://bnumwujvaribzfexpmmc.supabase.co/functions/v1/photos/gondterhelt.png"
-        alt={t.reliefBlock.imageAlt || "Gondterhelt vendéglátós képe"}
+        alt={t.reliefBlock.imageAlt || "Hospitality owner looking stressed"}
         className="w-full h-auto rounded-2xl shadow-lg object-contain"
         loading="lazy"
       />
@@ -445,7 +292,7 @@ export default function LandingPage() {
   <div className="mx-auto w-full max-w-[560px] flex justify-center items-center">
     <img
       src="https://bnumwujvaribzfexpmmc.supabase.co/functions/v1/photos/partnerspic.png"
-      alt={t.partnersImageAlt || "Partnerek képe"}
+      alt={t.partnersImageAlt || "Partners"}
       className="w-full h-auto rounded-2xl shadow-lg object-contain"
       loading="lazy"
     />
@@ -534,7 +381,7 @@ export default function LandingPage() {
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline font-medium"
                   >
-                    {language === 'hu' ? 'forrás' : 'source'}
+                    source
                   </a>
                 </span>
               </li>
@@ -910,7 +757,7 @@ export default function LandingPage() {
   <div className="mx-auto w-full max-w-[560px] flex justify-center items-center">
     <img
       src="https://bnumwujvaribzfexpmmc.supabase.co/functions/v1/photos/barista.png"
-      alt={t.setupStepsImageAlt || "barista pasi kép"}
+      alt={t.setupStepsImageAlt || "Barista"}
       className="w-full h-auto rounded-2xl shadow-lg object-contain"
       loading="lazy"
     />
@@ -1005,7 +852,7 @@ export default function LandingPage() {
   <div className="mx-auto w-full max-w-[560px] flex justify-center items-center">
     <img
       src="https://bnumwujvaribzfexpmmc.supabase.co/functions/v1/photos/qrscan.jpg"
-      alt={t.qrScanImageAlt || "QR-kód szkennelés"}
+      alt={t.qrScanImageAlt || "QR code scan"}
       className="w-full h-auto rounded-2xl shadow-lg object-contain"
       loading="lazy"
     />
@@ -1162,7 +1009,7 @@ export default function LandingPage() {
 <div className="flex justify-center mb-12">
   <Link
     onClick={() => fbq?.('trackCustom', 'TrustedBy_CTA')}
-    to={`/auth?mode=register&currency=${currency}`}
+    to="/auth?mode=register"
     className="inline-flex items-center px-8 py-4 rounded-2xl bg-[#4FC3F7] hover:bg-[#1A8FBF] text-white font-semibold text-lg shadow-[0_12px_28px_rgba(15,23,42,0.14)] focus:outline-none focus:ring-4 focus:ring-sky-300/40 pulse-custom"
   >
     {t.trustedByCta}
@@ -1394,141 +1241,29 @@ export default function LandingPage() {
         </div>
       </Section>
 
-{/* Lifetime Teaser (inside pricing-teaser section) */}
-<div id="ltd-teaser" className="relative mb-8">
-  <div className="max-w-3xl mx-auto rounded-2xl border border-yellow-200 bg-gradient-to-br from-amber-50 to-yellow-50 p-6 sm:p-8 shadow-[0_8px_24px_rgba(15,23,42,0.08)] relative">
-    
-    {/* Title */}
-    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 text-center"
-        style={{ fontFamily: 'Alexandria, sans-serif' }}>
-      {t.ltdTeaser.title}
-    </h2>
 
-    {/* Intro (with strong + line breaks) */}
-    <p className="text-base sm:text-lg text-gray-800 mb-5 text-center"
-       style={{ fontFamily: 'Montserrat, sans-serif', lineHeight: 1.7 }}
-       dangerouslySetInnerHTML={{ __html: t.ltdTeaser.intro }} />
-
-    {/* 4) Replace the "Tiers" <ul> block inside the Lifetime Teaser with this: */}
-    <div className="rounded-xl bg-white/70 border border-yellow-200 p-4 sm:p-5 mb-5">
-      <p className="text-sm font-semibold text-gray-900 mb-3"
-         style={{ fontFamily: 'Alexandria, sans-serif' }}>
-        {t.ltdTeaser.tiersTitle}
-      </p>
-
-      {(() => {
-        const rows = Array.isArray(t.ltdTeaser?.tiers) ? t.ltdTeaser.tiers : [];
-        const override = LTD_PRICES_BY_CUR[currency];
-
-        // If we have override prices for this currency, inject them; else render rows as-is (HUF).
-        if (override && rows.length) {
-          const out = rows.map((row, i) => injectPrice(row, override[i] ?? override[override.length - 1]));
-          return (
-            <ul className="space-y-2">
-              {out.map((html, i) => (
-                <li key={i} className="flex items-start gap-2 text-gray-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                  <span className="mt-1">✨</span>
-                  <span dangerouslySetInnerHTML={{ __html: html }} />
-                </li>
-              ))}
-            </ul>
-          );
-        }
-
-        // Fallback (HUF or missing overrides): use the translated rows untouched
-        return (
-          <ul className="space-y-2">
-            {rows.map((row, i) => (
-              <li key={i} className="flex items-start gap-2 text-gray-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                <span className="mt-1">✨</span>
-                <span dangerouslySetInnerHTML={{ __html: row }} />
-              </li>
-            ))}
-          </ul>
-        );
-      })()}
-    </div>
-
-    {/* Closer line */}
-    <p className="text-base sm:text-lg text-gray-900 font-semibold mb-4 text-center"
-       style={{ fontFamily: 'Montserrat, sans-serif' }}
-       dangerouslySetInnerHTML={{ __html: t.ltdTeaser.closer }} />
-
-    {/* CTA */}
-    <div className="flex flex-col items-center gap-3 mb-3">
-      <Link
-        onClick={() => fbq?.('trackCustom', 'Lifetime_Teaser_CTA')}
-        to="/pricing#founding-member"
-        className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-[#4FC3F7] hover:bg-[#1A8FBF] text-white font-semibold shadow-[0_12px_28px_rgba(15,23,42,0.14)] focus:outline-none focus:ring-4 focus:ring-sky-300/40"
-      >
-        {t.ltdTeaser.cta}
-      </Link>
-    </div>
-
-    {/* Note under CTA at the very end */}
-    <span className="block text-xs text-gray-600 text-center"
-          style={{ fontFamily: 'Montserrat, sans-serif' }}>
-      {t.ltdTeaser.note}
-    </span>
-  </div>
-</div>
 
       {/* In-page Pricing Teaser */}
       <Section id="pricing-teaser">
         <div className="text-center">
-          {/* LTD Banner – teaser tetején, nem sticky */}
-          {!ltdExpired ? (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white rounded-xl mb-6"
-            >
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-sm sm:text-base">
-                <div className="grid grid-cols-3 items-center gap-3">
-                  {/* spacer a tökéletes középre záráshoz */}
-                  <div />
-                  {/* középre igazított, sortörés nélküli szöveg */}
-                  <div className="flex items-center justify-center gap-2 text-center whitespace-nowrap leading-none">
-                    <Sparkles className="w-4 h-4" />
-                    <span className="font-semibold">
-                      {t.ltd?.bannerTitle || 'Lifetime Deal'}
-                    </span>
-                    <span aria-hidden className="mx-1">•</span>
-                    <span className="font-mono tabular-nums">
-                      {(t.ltd?.endsIn || 'Ends in') + '\u00A0'}: {countdown}
-                    </span>
-                  </div>
-                  {/* CTA jobbra */}
-                  <div className="flex justify-end">
-                    <a
-                      href="/pricing#founding-member"
-                      className="shrink-0 inline-flex items-center rounded-md bg-black/20 px-3 py-1.5 text-sm font-semibold hover:bg-black/25 transition"
-                    >
-                      {t.ltd?.ctaShort || 'Claim now'}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ) : (
-            <div className="bg-gray-100 text-gray-700 rounded-xl mb-6">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-sm text-center">
-                {t.ltd?.ended || 'The Lifetime Deal has ended.'}
-              </div>
-            </div>
-          )}
+          <h2 className="text-xl text-center text-gray-900 font-semibold mb-6">
+            {t.moreReviewsFlow}
+          </h2>
+          <h2 className="h2 text-gray-900 mb-4">
+            {t.pricingTeaserTitle || "Simple, scalable pricing"}
+          </h2>
 
-          {/* Trial + no credit card */}
-          <div className="max-w-2xl mx-auto text-center mt-2 mb-6">
+          {/* Money-back guarantee badge */}
+          <div className="max-w-3xl mx-auto text-center mt-2 mb-4">
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-green-100 text-green-800 rounded-full px-4 py-2 text-sm font-semibold mb-2"
+              initial={{ opacity: 0, y: -8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center gap-2 bg-green-100 text-green-800 rounded-full px-4 py-2 text-sm font-semibold"
             >
               <Sparkles className="w-4 h-4" />
-              {t.freeTrialBanner}
+              30-day money-back guarantee
             </motion.div>
           </div>
 
@@ -1553,208 +1288,139 @@ export default function LandingPage() {
             </span>
           </div>
 
-{/* Pricing Cards */}
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-  {[
-    {
-      key: 'solo',
-      name: 'Solo',
-      period: '/month',
-      highlight: false,
-      features: [
-        '1 business',
-        'Up to 3 Active Wheel of Fortunes',
-        'Up to 200 reviews/month',
-        'QR code customization',
-        'Review page customization',
-        'Priority email support',
-        'Video Onboarding'
-      ],
-      buttonText: 'Get Started'
-    },
-    {
-      key: 'growth',
-      name: 'Growth',
-      period: '/month',
-      highlight: false,
-      features: [
-        'Everything in Solo',
-        'Up to 3 businesses',
-        'Up to 15 Active Wheels',
-        'Up to 1000 reviews/month',
-        'Custom branding',
-        'Custom prize weighting'
-      ],
-      buttonText: 'Get Started'
-    },
-    /*
-    {
-      key: 'unlimited',
-      name: 'Professional',
-      period: '/month',
-      highlight: false,
-      features: [ ... ],
-      buttonText: 'Get Started'
-    },
-    */
-  ].map((plan) => {
-    const planTranslation = t.pricingPlans?.[plan.key];
-    return (
-      <Card
-        key={plan.key}
-        className={`p-8 w-full text-left flex flex-col h-full ${plan.highlight ? 'border border-[#4FC3F7] ring-2 ring-[#4FC3F7]' : ''}`}
-      >
-        <h3 className="h3 text-gray-900 mb-4">
-          {planTranslation?.name || plan.name}
-        </h3>
+          {/* Pricing Cards */}
+          <div className="flex flex-wrap justify-center gap-8">
+            {[
+              {
+                key: 'starter',
+                name: 'Starter',
+                price: 750,
+                period: '/month',
+                highlight: false,
+                features: [
+                  '1 business',
+                  'Up to 3 Wheel of Fortunes',
+                  'Max. 200 new reviews/month',
+                  'Downloadable guest email list',
+                  'Short video tutorials',
+                  'Access to your own stats'
+                ],
+                buttonText: 'Get Started'
+              },
+              {
+                key: 'growth',
+                name: 'Growth',
+                price: 1500,
+                period: '/month',
+                highlight: true,
+                features: [
+                  'Everything in Starter',
+                  'Up to 5 businesses',
+                  'Up to 15 Wheel of Fortunes',
+                  'Max. 1000 new reviews/month',
+                  'Custom design'
+                ],
+                buttonText: "I'll choose this"
+              },
+              {
+                key: 'professional',
+                name: 'Professional (Ideal for Franchise Businesses.)',
+                price: null, // Price on request
+                period: '',
+                highlight: false,
+                features: [
+                  'Everything in Growth',
+                  'Unlimited businesses',
+                  'Unlimited new reviews/month',
+                  'Unlimited Wheel of Fortunes',
+                  'Fast support – replies within 2 hours',
+                  'Feature requests',
+                  'Personalized onboarding'
+                ],
+                buttonText: 'Email greig@reviewtorevenue.io for a personalized quote.'
+              }
+            ].map((plan) => {
+              const planTranslation = t.pricingPlans?.[plan.key];
+              const isPriced = typeof plan.price === 'number';
 
-        <div className="flex items-baseline mb-8">
-          <span className="text-4xl font-bold text-gray-900">
-            {teaserDisplayPrice(plan.key as 'solo'|'growth')}
-          </span>
-          <span className="text-gray-500 ml-1">
-            {showAnnual ? '/year' : (planTranslation?.period || plan.period)}
-          </span>
-        </div>
+              return (
+                <Card
+                  key={plan.key}
+                  className={`p-8 w-full max-w-sm text-left ${plan.highlight ? 'border border-[#4FC3F7] ring-2 ring-[#4FC3F7]' : ''}`}
+                >
+                  {/* Most Popular badge */}
+                  {plan.key === 'growth' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 mb-3 rounded-full
+                                     text-[11px] font-semibold uppercase tracking-wide
+                                     bg-[#E6F7FF] text-[#0284C7] border border-[#BAE6FD]">
+                      Most Popular
+                    </span>
+                  )}
 
-        <ul className="space-y-4 mb-8 flex-1">
-          {(planTranslation?.features || plan.features).map((feature: string) => (
-            <li key={feature} className="flex items-start gap-2 text-gray-600">
-              <Check className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-              <span>{feature}</span>
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
+                  <h3 className="h3 text-gray-900 mb-4">
+                    {planTranslation?.name || plan.name}
+                  </h3>
 
-        <Link
-          onClick={() => fbq?.('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`)}
-          to={`/auth?mode=register&plan=${plan.key}${showAnnual ? '_yearly' : ''}&currency=${currency}`}
-          className={`mt-auto inline-block w-full py-4 rounded-2xl font-semibold text-center text-white bg-[#4FC3F7] hover:bg-[#1A8FBF] shadow-[0_12px_28px_rgba(15,23,42,0.14)] focus:outline-none focus:ring-4 focus:ring-sky-300/40 transition pulse-custom ${plan.highlight ? 'animate-pulse-cyan-shadow' : ''}`}
-        >
-          {planTranslation?.buttonText || plan.buttonText}
-        </Link>
-      </Card>
-    );
-  })}
+                  <div className="flex items-baseline mb-8">
+                    {isPriced ? (
+                      <>
+                        <span className="text-4xl font-bold text-gray-900">
+                          {fmtZAR.format(showAnnual ? Math.round(plan.price! * 12 * 0.8) : plan.price!)}
+                        </span>
+                        <span className="text-gray-500 ml-1">
+                          {showAnnual ? '/year' : (planTranslation?.period || plan.period)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-2xl font-bold text-gray-900">Price on request</span>
+                    )}
+                  </div>
 
-  {/* Founding Member Lifetime Deal Card */}
-  <Card
-    key="founding-member"
-    className="relative p-8 w-full text-left flex flex-col h-full ring-4 ring-yellow-400/70 overflow-hidden"
-  >
-    <div
-      className="pointer-events-none absolute inset-0 rounded-2xl"
-      style={{ background: 'radial-gradient(120% 80% at 50% -10%, rgba(255,215,0,0.25), transparent 60%)' }}
-    />
-    <div className="absolute top-4 right-4 z-[1]">
-      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-900 border border-yellow-300">
-        {t.ltd?.badge || 'Lifetime'}
-      </span>
-    </div>
+                  <ul className="space-y-4 mb-8">
+                    {(planTranslation?.features || plan.features).map((feature: string) => (
+                      <li key={feature} className="flex items-start gap-2 text-gray-600">
+                        <Check className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-    <div className="relative z-[1] flex flex-col h-full">
-      <h3 className="h3 text-gray-900 mb-1">{t.ltd?.title || 'Founding Member'}</h3>
-      <p className="text-sm text-gray-600 mb-4">{t.ltd?.subtitle || 'Pay once. Use forever.'}</p>
-
-      <div className="mb-4">
-        <div className="text-4xl font-black text-gray-900">{fmtMoney(fmBase)}</div>
-        <div className="text-xs text-gray-500">{t.ltd?.priceNote || 'one-time for 1 business'}</div>
-      </div>
-
-      <ul className="space-y-2 text-base text-gray-700 mb-5">
-        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t.ltd?.features?.wheels   || 'Up to 3 Wheel of Fortunes'}</li>
-        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t.ltd?.features?.reviews  || '200 new reviews/month'}</li>
-        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t.ltd?.features?.emails   || 'Download guest emails'}</li>
-        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t.ltd?.features?.tutorials|| 'Short video tutorials'}</li>
-        <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t.ltd?.features?.stats    || 'Your own stats dashboard'}</li>
-        <li className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-yellow-500" /> {t.ltd?.features?.updates || 'All future updates'}</li>
-      </ul>
-
-      <div className="mb-4">
-        <label htmlFor="teaserExtraBiz" className="block text-sm font-medium text-gray-800 mb-1">
-          {t.ltd?.addExtraLabel || 'Add extra business'}
-        </label>
-        <div className="flex items-center gap-2">
-          <select
-            id="teaserExtraBiz"
-            value={extraBusinesses}
-            onChange={(e) => setExtraBusinesses(Math.max(0, Math.min(FM_ADDON_MAX, Number(e.target.value))))}
-            className="border rounded-lg px-3 py-2 text-gray-800"
-          >
-            {Array.from({ length: FM_ADDON_MAX + 1 }, (_, i) => i).map(n => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </select>
-          <span className="text-sm text-gray-600">
-            {t.ltd?.each?.replace?.('{price}', fmtMoney(fmAddon)) || `+${fmtMoney(fmAddon)} each`}
-          </span>
-        </div>
-        {extraBusinesses > 0 && (
-          <div className="text-xs text-gray-500 mt-1">
-            {fmtMoney(fmAddon)} × {extraBusinesses} = {fmtMoney(fmAddon * extraBusinesses)}
+                  {isPriced ? (
+                    <button
+                      onClick={() => {
+                        (window as any).fbq?.('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`);
+                        try {
+                          localStorage.setItem('src', 'za');          // lock ZAR
+                          localStorage.setItem('userCountry', 'ZA');  // Auth fallback
+                          const href = `/auth?mode=register&plan=${plan.key}&billing=${showAnnual ? 'annual' : 'monthly'}`;
+                          window.location.href = href;
+                        } catch (e) {
+                          console.error('ZA→IO redirect failed', e);
+                          window.location.href = 'https://reviewtorevenue.io/auth?mode=register&src=za';
+                        }
+                      }}
+                      className={`inline-block w-full py-4 rounded-full font-semibold text-center text-white bg-[#4FC3F7] hover:brightness-110 transition ${
+                        plan.highlight ? 'animate-pulse-cyan-shadow' : ''
+                      }`}
+                    >
+                      {planTranslation?.buttonText || plan.buttonText}
+                    </button>
+                  ) : (
+                    <div className="text-sm text-gray-600 text-center">
+                      <a
+                        href="mailto:greig@reviewtorevenue.io"
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        {plan.buttonText}
+                      </a>
+                    </div>
+                  )}
+                </Card>
+              );
+            })}
           </div>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <div className="flex items-baseline gap-2">
-          <span className="text-sm text-gray-700">{t.ltd?.totalLabel || 'Total'}</span>
-          <span className="text-2xl font-semibold text-gray-900">{fmtMoney(fmTotal)}</span>
-        </div>
-      </div>
-
-      <button
-        onClick={() => (window.location.href = '/pricing#founding-member')}
-        className="mt-auto w-full py-3 px-4 rounded-lg font-semibold transition-all text-white bg-gradient-to-r from-yellow-500 to-amber-500 hover:brightness-110 shadow-[0_8px_20px_rgba(234,179,8,0.35)] pulse-custom"
-      >
-        {t.ltd?.cta || 'Get Founding Member Lifetime'}
-      </button>
-    </div>
-  </Card>
-
-  {/* Inquiry / Contact Card */}
-  <Card key="inquiry-card" className="p-8 w-full text-left flex flex-col h-full">
-    <h3 className="h3 text-gray-900 mb-2">
-      {language === 'hu' ? 'Még nem tudom. Kérdésem lenne, beszéljünk.' : "Not sure yet? Let's talk."}
-    </h3>
-    <p className="text-gray-600 mb-6">
-      {language === 'hu'
-        ? 'Segítünk kiválasztani a megfelelő csomagot és megválaszoljuk a kérdéseid.'
-        : "We'll help you choose the right plan and answer any questions."}
-    </p>
-
-    <ul className="space-y-3 mb-8">
-      <li className="flex items-start gap-2 text-gray-600"><Check className="w-5 h-5 text-green-500 mt-1" /> {language === 'hu' ? '15–20 perces gyors egyeztetés' : 'Quick 15–20 min discovery call'}</li>
-      <li className="flex items-start gap-2 text-gray-600"><Check className="w-5 h-5 text-green-500 mt-1" /> {language === 'hu' ? 'Demó, válaszok, ajánlás' : 'Short demo, answers, recommendation'}</li>
-      <li className="flex items-start gap-2 text-gray-600"><Check className="w-5 h-5 text-green-500 mt-1" /> {language === 'hu' ? 'Egyedi ajánlat 3-nál több üzlet esetén' : 'Custom offer for 3+ businesses'}</li>
-    </ul>
-
-    <div className="mt-auto grid grid-cols-1 gap-3">
-      <a
-        href={WHATSAPP_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-full py-3 px-4 rounded-lg font-medium text-[#0a7c4a] bg-green-50 hover:bg-green-100 border border-green-200 text-center"
-      >
-        {language === 'hu' ? 'Írok WhatsAppon' : 'WhatsApp us'}
-      </a>
-
-      <a
-        href={language === 'hu' ? CALENDLY_LINK_HU : CALENDLY_LINK_EN}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-full py-3 px-4 rounded-lg font-medium text-white bg-[#4FC3F7] hover:bg-[#1A8FBF] shadow-[0_12px_28px_rgba(15,23,42,0.14)] focus:outline-none focus:ring-4 focus:ring-sky-300/40 text-center pulse-custom"
-      >
-        {language === 'hu' ? 'Foglalok időpontot' : 'Book a call'}
-      </a>
-    </div>
-  </Card>
-</div>
-
         </div>
       </Section>
-
 
       {/* Final CTA Section */}
       <section className="py-8" style={{ backgroundColor: '#4FC3F7' }}>
