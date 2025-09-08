@@ -102,7 +102,7 @@ export default function LandingPage() {
           {/* Hero section CTA */}
           <button
             onClick={() => {
-              fbq('trackCustom', 'Landing_Hero_CTA');
+              window?.fbq?.('trackCustom', 'Landing_Hero_CTA');
               const el = document.getElementById('roi-calculator');
               if (!el) return;
 
@@ -266,7 +266,7 @@ export default function LandingPage() {
     <div className="mt-10">
       <button
         onClick={() => {
-          fbq?.('trackCustom', 'Relief_Block_CTA');
+          window?.fbq?.('trackCustom', 'Relief_Block_CTA');
           const el = document.getElementById('pricing-teaser') || document.getElementById('roi-calculator');
           if (!el) return;
           const header = document.querySelector('nav, [data-fixed-header]')?.offsetHeight || 0;
@@ -458,7 +458,7 @@ export default function LandingPage() {
       <div className="pt-4 flex justify-center">
         <button
           onClick={() => {
-            fbq?.('trackCustom', 'NewGuests_Block_CTA');
+            window?.fbq?.('trackCustom', 'NewGuests_Block_CTA');
             const el = document.getElementById('pricing-teaser');
             if (!el) return;
             const header = document.querySelector('nav, [data-fixed-header]')?.offsetHeight || 0;
@@ -563,7 +563,7 @@ export default function LandingPage() {
       <div className="flex justify-center pt-2">
         <button
           onClick={() => {
-            fbq?.('trackCustom', 'EmailList_Block_CTA');
+            window?.fbq?.('trackCustom', 'EmailList_Block_CTA');
             const el = document.getElementById('pricing-teaser');
             if (!el) return;
             const header = document.querySelector('nav, [data-fixed-header]')?.offsetHeight || 0;
@@ -733,7 +733,7 @@ export default function LandingPage() {
   <div className="mt-4 flex justify-center">
     <button
       onClick={() => {
-        fbq?.('trackCustom', 'SetupSteps_CTA');
+        window?.fbq?.('trackCustom', 'SetupSteps_CTA');
         const el = document.getElementById('pricing-teaser');
         if (!el) return;
         const header = document.querySelector('nav, [data-fixed-header]')?.offsetHeight || 0;
@@ -822,7 +822,7 @@ export default function LandingPage() {
       <div className="flex justify-center">
         <motion.button
           onClick={() => {
-            fbq?.('trackCustom', 'HowToUse_CTA');
+            window?.fbq?.('trackCustom', 'HowToUse_CTA');
             const el = document.getElementById('pricing-teaser');
             if (!el) return;
             const header = document.querySelector('nav, [data-fixed-header]')?.offsetHeight || 0;
@@ -925,7 +925,7 @@ export default function LandingPage() {
 
         <motion.button
           onClick={() => {
-            fbq?.('trackCustom', 'Landing_Gamified_CTA');
+            window?.fbq?.('trackCustom', 'Landing_Gamified_CTA');
             document.getElementById('pricing-teaser')?.scrollIntoView({ behavior: 'smooth' });
           }}
           className="inline-flex items-center px-8 py-4 rounded-2xl bg-[#4FC3F7] hover:bg-[#1A8FBF] text-white font-semibold text-lg shadow-[0_12px_28px_rgba(15,23,42,0.14)] focus:outline-none focus:ring-4 focus:ring-sky-300/40 pulse-custom"
@@ -1008,7 +1008,7 @@ export default function LandingPage() {
 {/* CTA gomb */}
 <div className="flex justify-center mb-12">
   <Link
-    onClick={() => fbq?.('trackCustom', 'TrustedBy_CTA')}
+    onClick={() => window?.fbq?.('trackCustom', 'TrustedBy_CTA')}
     to="/auth?mode=register"
     className="inline-flex items-center px-8 py-4 rounded-2xl bg-[#4FC3F7] hover:bg-[#1A8FBF] text-white font-semibold text-lg shadow-[0_12px_28px_rgba(15,23,42,0.14)] focus:outline-none focus:ring-4 focus:ring-sky-300/40 pulse-custom"
   >
@@ -1120,7 +1120,7 @@ export default function LandingPage() {
       <div className="flex justify-center mt-6">
         <button
           onClick={() => {
-            fbq?.('trackCustom', 'NotForYou_CTA');
+            window?.fbq?.('trackCustom', 'NotForYou_CTA');
             const el = document.getElementById('pricing-teaser');
             if (!el) return;
             const header = document.querySelector('nav, [data-fixed-header]')?.offsetHeight || 0;
@@ -1388,7 +1388,7 @@ export default function LandingPage() {
                   {isPriced ? (
                     <button
                       onClick={() => {
-                        (window as any).fbq?.('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`);
+                        window?.fbq?.('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`);
                         try {
                           localStorage.setItem('src', 'za');          // lock ZAR
                           localStorage.setItem('userCountry', 'ZA');  // Auth fallback
