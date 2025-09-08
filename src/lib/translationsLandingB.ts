@@ -237,7 +237,7 @@ If you're at 4.5★ or below, face the hard truth: with a 4.8★ competitor arou
       buttonText: "Choose plan",
       features: [
         "Everything in Starter",
-        "Up to 3 locations",
+        "Up to 5 locations",
         "Up to 15 wheels",
         "Up to 1000 new reviews/month",
         "Custom branding"
