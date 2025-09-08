@@ -680,11 +680,15 @@ export default function LandingPage() {
   </p>
 
 {/* 5 lépés */}
-<ol className="mt-6 grid gap-4 sm:grid-cols-2">
+<ol className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
   {t.setupSteps.map((step: string, idx: number) => (
     <li
       key={idx}
-      className="p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/60 shadow-sm text-left"
+      className="
+        p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/60 shadow-sm text-left
+        sm:last:col-span-2 sm:last:justify-self-center sm:last:max-w-md sm:last:w-full
+        md:last:col-span-1 md:last:justify-self-auto md:last:max-w-none
+      "
       style={{ fontFamily: 'Montserrat, sans-serif' }}
     >
       {/* Fejléc sor: badge + szöveg */}
