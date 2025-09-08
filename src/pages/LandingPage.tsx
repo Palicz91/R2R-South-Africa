@@ -13,7 +13,6 @@ import Section from '../components/ui/Section';
 import Card from '../components/ui/Card';
 import '../styles/typography.css';
 import RoiCalculator from '../components/RoiCalculator';
-import { resolveCurrencyFromGeo, SupportedCurrency } from '../lib/currency';
 import { useLanguage } from '../context/LanguageContext';
 
 const CALENDLY_LINK_HU = "https://calendly.com/hello-reviewtorevenue/review-to-revenue-hu";
