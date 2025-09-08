@@ -86,7 +86,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPageNew />} />
-          <Route path="/landingpagenew" element={<LandingPage />} />
+          <Route path="/home" element={<LandingPage />} />
           <Route path="/challenge-hospitality" element={<ChallengeLandingPage1 />} />
           <Route path="/challenge-host" element={<ChallengeLandingPage2 />} />
           <Route path="/challenge-beauty" element={<ChallengeLandingPage3 />} />
