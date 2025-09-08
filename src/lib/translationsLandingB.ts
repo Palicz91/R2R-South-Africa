@@ -800,7 +800,7 @@ notForYouBlock: {
       finalCtaDescription: "Start collecting 5-star reviews within minutes with a game your guests will love.",
 
       moreReviewsFlow: "More returning guests ➕ more Google Reviews ➕ more email subscribers = Revenue boost 🚀",
-      pricingTeaserTitle: "More revenue for the price of two pizzas",
+      pricingTeaserTitle: "More revenue for the price of a cheap dinner for 2.",
 
 
       ltdTeaser: {
