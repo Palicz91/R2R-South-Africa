@@ -1346,7 +1346,9 @@ export default function LandingPage() {
               return (
                 <Card
                   key={plan.key}
-                  className={`p-8 w-full max-w-sm text-left ${plan.highlight ? 'border border-[#4FC3F7] ring-2 ring-[#4FC3F7]' : ''}`}
+                  className={`p-8 w-full max-w-sm text-left flex flex-col h-full ${
+                    plan.highlight ? 'border border-[#4FC3F7] ring-2 ring-[#4FC3F7]' : ''
+                  }`}
                 >
                   {/* Most Popular badge */}
                   {plan.key === 'growth' && (
@@ -1361,60 +1363,64 @@ export default function LandingPage() {
                     {planTranslation?.name || plan.name}
                   </h3>
 
-                  <div className="flex items-baseline mb-8">
-                    {isPriced ? (
-                      <>
-                        <span className="text-4xl font-bold text-gray-900">
-                          {fmtZAR.format(showAnnual ? Math.round(plan.price! * 12 * 0.8) : plan.price!)}
-                        </span>
-                        <span className="text-gray-500 ml-1">
-                          {showAnnual ? '/year' : (planTranslation?.period || plan.period)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-2xl font-bold text-gray-900">Price on request</span>
-                    )}
+                  <div className="flex-1 mb-6">
+                    <div className="flex items-baseline mb-6">
+                      {isPriced ? (
+                        <>
+                          <span className="text-4xl font-bold text-gray-900">
+                            {fmtZAR.format(showAnnual ? Math.round(plan.price! * 12 * 0.8) : plan.price!)}
+                          </span>
+                          <span className="text-gray-500 ml-1">
+                            {showAnnual ? '/year' : (planTranslation?.period || plan.period)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-2xl font-bold text-gray-900">Price on request</span>
+                      )}
+                    </div>
+
+                    <ul className="space-y-4">
+                      {(planTranslation?.features || plan.features).map((feature: string) => (
+                        <li key={feature} className="flex items-start gap-2 text-gray-600">
+                          <Check className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
-                  <ul className="space-y-4 mb-8">
-                    {(planTranslation?.features || plan.features).map((feature: string) => (
-                      <li key={feature} className="flex items-start gap-2 text-gray-600">
-                        <Check className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {isPriced ? (
-                    <button
-                      onClick={() => {
-                        window?.fbq?.('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`);
-                        try {
-                          localStorage.setItem('src', 'za');          // lock ZAR
-                          localStorage.setItem('userCountry', 'ZA');  // Auth fallback
-                          const href = `/auth?mode=register&plan=${plan.key}&billing=${showAnnual ? 'annual' : 'monthly'}`;
-                          window.location.href = href;
-                        } catch (e) {
-                          console.error('ZA→IO redirect failed', e);
-                          window.location.href = 'https://reviewtorevenue.io/auth?mode=register&src=za';
-                        }
-                      }}
-                      className={`inline-block w-full py-4 rounded-full font-semibold text-center text-white bg-[#4FC3F7] hover:brightness-110 transition ${
-                        plan.highlight ? 'animate-pulse-cyan-shadow' : ''
-                      }`}
-                    >
-                      {planTranslation?.buttonText || plan.buttonText}
-                    </button>
-                  ) : (
-                    <div className="text-sm text-gray-600 text-center">
-                      <a
-                        href="mailto:greig@reviewtorevenue.io"
-                        className="text-blue-600 hover:text-blue-800 underline"
+                  <div className="mt-auto">
+                    {isPriced ? (
+                      <button
+                        onClick={() => {
+                          window?.fbq?.('trackCustom', `Landing_Pricing_CTA_${plan.key.toUpperCase()}`);
+                          try {
+                            localStorage.setItem('src', 'za');          // lock ZAR
+                            localStorage.setItem('userCountry', 'ZA');  // Auth fallback
+                            const href = `/auth?mode=register&plan=${plan.key}&billing=${showAnnual ? 'annual' : 'monthly'}`;
+                            window.location.href = href;
+                          } catch (e) {
+                            console.error('ZA→IO redirect failed', e);
+                            window.location.href = 'https://reviewtorevenue.io/auth?mode=register&src=za';
+                          }
+                        }}
+                        className={`inline-block w-full py-4 rounded-full font-semibold text-center text-white bg-[#4FC3F7] hover:brightness-110 transition ${
+                          plan.highlight ? 'animate-pulse-cyan-shadow' : ''
+                        }`}
                       >
-                        {plan.buttonText}
-                      </a>
-                    </div>
-                  )}
+                        {planTranslation?.buttonText || plan.buttonText}
+                      </button>
+                    ) : (
+                      <div className="text-sm text-gray-600 text-center">
+                        <a
+                          href="mailto:greig@reviewtorevenue.io"
+                          className="text-blue-600 hover:text-blue-800 underline"
+                        >
+                          {plan.buttonText}
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 </Card>
               );
             })}
