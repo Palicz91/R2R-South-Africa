@@ -1,10 +1,13 @@
 // src/hooks/useTranslationLandingB.ts
-import { useContext, useMemo } from "react";
-import { LanguageContext } from "../context/LanguageContext";
 import { getTranslationLandingB } from "../lib/translationsLandingB";
 
-export default function useTranslationLandingB() {
-  const { language } = useContext(LanguageContext);
-  const t = useMemo(() => getTranslationLandingB(language), [language]);
-  return { t, language };
+export default function useTranslation(opts?: { forceLang?: 'en'|'hu' }) {
+  const lang = opts?.forceLang ?? 'en';
+  // töltsd a megfelelő nyelvi objektumot, de most mindig en
+  const translations = {
+    en: getTranslationLandingB('en'),
+    hu: getTranslationLandingB('hu'),
+
+  };
+  return { t: translations[lang], lang };
 }
