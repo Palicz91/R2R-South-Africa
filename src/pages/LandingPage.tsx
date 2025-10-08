@@ -37,34 +37,6 @@ export default function LandingPage() {
       }
     });
   }, [navigate]);
-  
-  // Add AgentiveHub Chat Widget
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://agentivehub.com/production.bundle.min.js';
-    script.type = 'text/javascript';
-    script.async = true;
-
-    script.onload = () => {
-      if (!document.getElementById('root')) {
-        const root = document.createElement('div');
-        root.id = 'root';
-        document.body.appendChild(root);
-      }
-
-      if (window.myChatWidget && typeof window.myChatWidget.load === 'function') {
-        window.myChatWidget.load({
-          id: '6147b061-c410-4f56-b2ca-e3e62b98384f',
-        });
-      }
-    };
-
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
 
   // Auto popup video on first visit
   useEffect(() => {
