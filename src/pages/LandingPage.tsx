@@ -681,6 +681,17 @@ export default function LandingPage() {
   </div>
 </section>
 
+    {/* Quick Start Video */}
+    <div className="max-w-3xl mx-auto my-4">
+      <MarketingVideo
+        variant="inline"
+        youtubeId={YT_QUICK}
+        startAt={0}
+        title="Quick Start (2 minutes)"
+        aspect={16 / 9}
+      />
+    </div>
+
 {/* Setup Steps Block (új szöveg + highlight + tip + CTA) */}
 <div id="setup-steps" className="max-w-4xl mx-auto mt-6 mb-10 text-center">
   <h3
@@ -849,17 +860,6 @@ export default function LandingPage() {
           />
         </div>
       ))}
-    </div>
-
-    {/* Quick Start Video */}
-    <div className="max-w-3xl mx-auto my-4">
-      <MarketingVideo
-        variant="inline"
-        youtubeId={YT_QUICK}
-        startAt={0}
-        title="Quick Start (2 minutes)"
-        aspect={16 / 9}
-      />
     </div>
 
     {/* Záró kérdés + CTA */}
