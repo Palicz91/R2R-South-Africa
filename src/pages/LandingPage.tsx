@@ -13,12 +13,18 @@ import Section from '../components/ui/Section';
 import Card from '../components/ui/Card';
 import '../styles/typography.css';
 import RoiCalculator from '../components/RoiCalculator';
+import MarketingVideo from '../components/MarketingVideo';
+
+// Video IDs (ZA)
+const YT_DEMO = 'IIcUmJiq4H0';     // hero + modal
+const YT_QUICK = 'Epuua-AqTPc';     // quick start
 
 const fmtZAR = new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' });
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const [showAnnual, setShowAnnual] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
 
   const { t } = useTranslation({ forceLang: 'en' });
   
@@ -58,6 +64,22 @@ export default function LandingPage() {
     return () => {
       document.body.removeChild(script);
     };
+  }, []);
+
+  // Auto popup video on first visit
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const STORAGE_KEY = 'heroVideoShown';
+    if (window.localStorage.getItem(STORAGE_KEY) === '1') return;
+    const timer = window.setTimeout(() => {
+      try {
+        setVideoOpen(true);
+        window.localStorage.setItem(STORAGE_KEY, '1');
+        // @ts-ignore
+        window.fbq?.('trackCustom', 'Auto_Video_Popup');
+      } catch {}
+    }, 3000);
+    return () => window.clearTimeout(timer);
   }, []);
   
   const fadeIn = {
@@ -139,6 +161,23 @@ export default function LandingPage() {
   <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
     <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-blue-100 rounded-full opacity-20 blur-3xl" />
     <div className="absolute -bottom-1/4 -left-1/4 w-96 h-96 bg-indigo-100 rounded-full opacity-20 blur-3xl" />
+  </div>
+</section>
+
+{/* Hero Video Section */}
+<section id="hero-video" className="py-8 sm:py-12 bg-white">
+  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+    <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">See it in 60 seconds</h2>
+    <p className="text-gray-700 max-w-2xl mx-auto">
+      A quick look at how one QR wheel drives repeat visits, reviews, and email signups.
+    </p>
+    <MarketingVideo
+      variant="inline"
+      youtubeId={YT_DEMO}
+      startAt={0}
+      title="Product demo"
+      aspect={16 / 9}
+    />
   </div>
 </section>
 
@@ -812,6 +851,17 @@ export default function LandingPage() {
       ))}
     </div>
 
+    {/* Quick Start Video */}
+    <div className="max-w-3xl mx-auto my-4">
+      <MarketingVideo
+        variant="inline"
+        youtubeId={YT_QUICK}
+        startAt={0}
+        title="Quick Start (2 minutes)"
+        aspect={16 / 9}
+      />
+    </div>
+
     {/* Záró kérdés + CTA */}
     <div className="space-y-4 mt-6">
       <p
@@ -1437,6 +1487,16 @@ export default function LandingPage() {
       </section>
 
       <Footer />
+
+      {/* Modal Video */}
+      <MarketingVideo
+        variant="modal"
+        youtubeId={YT_DEMO}
+        startAt={0}
+        title="Quick Start (2 minutes)"
+        open={videoOpen}
+        onClose={() => setVideoOpen(false)}
+      />
     </div>
   );
 }
