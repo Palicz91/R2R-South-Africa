@@ -456,6 +456,17 @@ export default function LandingPageNew() {
       {t.r2rHowToUseTitle}
     </h3>
 
+        {/* Quick Start Video */}
+    <div className="max-w-3xl mx-auto my-4">
+      <MarketingVideo
+        variant="inline"
+        youtubeId={YT_QUICK}
+        startAt={0}
+        title="Quick Start (2 minutes)"
+        aspect={16 / 9}
+      />
+    </div>
+
     {/* Bevezető szöveg */}
     <div className="space-y-6 text-left text-lg text-gray-700" style={{ fontFamily: 'Montserrat, sans-serif' }}>
       <p dangerouslySetInnerHTML={{ __html: t.r2rHowToUseIntro1 }} />
@@ -483,17 +494,6 @@ export default function LandingPageNew() {
           />
         </div>
       ))}
-    </div>
-
-    {/* Quick Start Video */}
-    <div className="max-w-3xl mx-auto my-4">
-      <MarketingVideo
-        variant="inline"
-        youtubeId={YT_QUICK}
-        startAt={0}
-        title="Quick Start (2 minutes)"
-        aspect={16 / 9}
-      />
     </div>
 
     {/* Lábrész + CTA gomb */}
