@@ -317,7 +317,7 @@ export default function PricingPage() {
                           href="mailto:greig@reviewtorevenue.co.za" 
                           className="text-blue-600 hover:text-blue-800 underline"
                         >
-                          Email greig@reviewtorevenue.co.za
+                          Email greig@reviewtorevenue.io
                         </a>{" "}
                         for a personalized quote.
                       </div>
